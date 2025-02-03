@@ -26,14 +26,5 @@ public class Deck {
         return Mono.justOrEmpty(cards.isEmpty() ? null : cards.get(0));
     }
 
-    public void resetDeck() {
-        cards.clear();
-        for (CardSuit suit : CardSuit.values()) {
-            for (CardValue value : CardValue.values()) {
-                cards.add(new Card(suit, value));
-            }
-        }
-        Collections.shuffle(cards);
-    }
 }
 

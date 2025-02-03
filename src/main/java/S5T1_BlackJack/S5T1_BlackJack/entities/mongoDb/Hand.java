@@ -1,6 +1,4 @@
 package S5T1_BlackJack.S5T1_BlackJack.entities.mongoDb;
-
-import S5T1_BlackJack.S5T1_BlackJack.entities.enumsEntities.CardValue;
 import S5T1_BlackJack.S5T1_BlackJack.entities.sql.Card;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -56,7 +54,7 @@ public class Hand {
         });
     }
 
-    public Mono<Boolean> lostGame() {
+    public Mono<Boolean> checkScoreHand() {
         return calculateScore().map(score -> score > 21);
     }
 
