@@ -1,6 +1,7 @@
 package S5T1_BlackJack.S5T1_BlackJack.entities.mongoDb;
 
 import S5T1_BlackJack.S5T1_BlackJack.entities.Deck;
+import S5T1_BlackJack.S5T1_BlackJack.entities.enumsEntities.ActionType;
 import S5T1_BlackJack.S5T1_BlackJack.entities.enumsEntities.statusGame;
 import S5T1_BlackJack.S5T1_BlackJack.entities.sql.Card;
 import S5T1_BlackJack.S5T1_BlackJack.entities.sql.Player;
@@ -54,7 +55,6 @@ public class Game {
                 totalBalance -= bet;
                 break;
             case THE_GAME_WAS_DRAWN:
-                // No se cambia el saldo en empate
                 break;
         }
         this.status = finalStatus;
@@ -94,6 +94,9 @@ public class Game {
 
     public statusGame getStatus() {
         return status;
+    }
+    public void setStatus(statusGame statusGame) {
+        status = statusGame;
     }
 
     public double getTotalBalance() {

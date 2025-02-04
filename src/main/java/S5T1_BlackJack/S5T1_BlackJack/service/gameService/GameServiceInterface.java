@@ -1,4 +1,4 @@
-package S5T1_BlackJack.S5T1_BlackJack.service;
+package S5T1_BlackJack.S5T1_BlackJack.service.gameService;
 
 import S5T1_BlackJack.S5T1_BlackJack.DTO.PlayerDTO;
 import S5T1_BlackJack.S5T1_BlackJack.entities.enumsEntities.ActionType;
@@ -10,12 +10,12 @@ import reactor.core.publisher.Mono;
 public interface GameServiceInterface {
 
     Mono<Game> addGame(PlayerDTO playerDTO);
-    Mono<Game> getGame();
+    Mono<Game> getGame(int id);
     Mono<Void> newBet(double bet);
 
     Mono<Void> placeBet(double betAmount);
 
-    Mono<statusGame> playTurn(ActionType action);
+    Mono<Game> playTurn(Game game, ActionType action);
     Mono<statusGame> getGameStatus();
     Mono<Hand> getPlayerHand();
     Mono<Hand> getDealerHand();

@@ -16,17 +16,15 @@ public class Player {
     private int games;
     private int winGames;
     private double score;
-    private String email;
 
-    protected Player() {
+    public Player() {
     }
 
-    public Player(String name, String email) {
+    public Player(String name) {
         this.name = name;
         this.games = 0;
         this.winGames = 0;
         this.score = 0;
-        this.email = email;
     }
 
     public int getId() {
@@ -65,11 +63,4 @@ public class Player {
         this.score = score;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 }
