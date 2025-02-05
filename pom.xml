@@ -8,11 +8,11 @@
 		<version>3.4.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>cat.itacademy.s05.t01.n01</groupId>
-	<artifactId>S05T01N01</artifactId>
+	<groupId>S5T1BlackJack</groupId>
+	<artifactId>S5T1BlackJack</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>S05T01N01</name>
-	<description>S05T01N01 Le Moing Gwenael</description>
+	<name>S5T1_BlackJack</name>
+	<description>Proyecto Spring para ITAcademy</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -27,7 +27,7 @@
 		<url/>
 	</scm>
 	<properties>
-		<java.version>21</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
