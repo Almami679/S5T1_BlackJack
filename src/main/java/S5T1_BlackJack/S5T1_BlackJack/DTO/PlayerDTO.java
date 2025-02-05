@@ -1,17 +1,24 @@
 package S5T1_BlackJack.S5T1_BlackJack.DTO;
 
 import S5T1_BlackJack.S5T1_BlackJack.exceptions.PlayerNameIsNullException;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record PlayerDTO (String name){
 
-    public PlayerDTO {
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class PlayerDTO {
 
-        if (name == null || name.isEmpty()) {
-            throw new PlayerNameIsNullException("Player name cannot be Null or empty");
-        }
+    @NotBlank(message = "name cannot be null")
+    @Size(min = 3, max = 50, message = "the name must be between 3 and 50 characters")
+    private String name;
 
-        if(name.length() > 21) {
-            throw new PlayerNameIsNullException("Player name is to long [use 20 characters maximum]");
-        }
+    public String getName(){
+        return name;
     }
 }

@@ -1,5 +1,7 @@
 package S5T1_BlackJack.S5T1_BlackJack.entities.mongoDb;
-import S5T1_BlackJack.S5T1_BlackJack.entities.sql.Card;
+import S5T1_BlackJack.S5T1_BlackJack.entities.Card;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import reactor.core.publisher.Mono;
@@ -7,6 +9,8 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Document(collection = "hands")
+@Getter
+@Setter
 public class Hand {
     @Id
     private int id;
@@ -24,20 +28,6 @@ public class Hand {
     }
 
 
-    public int getId() { return id; }
-
-    public int getPlayerId() { return playerId; }
-
-    public void setPlayerId(int playerId) { this.playerId = playerId; }
-
-    public List<Card> getCards() { return cards; }
-
-    public void setCards(List<Card> cards) { this.cards = cards; }
-
-    public double getBet() { return bet; }
-
-    public void setBet(double bet) { this.bet = bet; }
-
     public Mono<Integer> calculateScore() {
         return Mono.fromCallable(() ->
                 cards.stream().mapToInt(Card::getPoints).sum()
@@ -54,12 +44,11 @@ public class Hand {
         });
     }
 
+    public Mono<Boolean> checkBlackjack() {
+        return calculateScore().map(score -> cards.size() == 2 && score == 21);
+    }
     public Mono<Boolean> checkScoreHand() {
         return calculateScore().map(score -> score > 21);
-    }
-
-    public Mono<Boolean> isBlackjack() {
-        return calculateScore().map(score -> cards.size() == 2 && score == 21);
     }
 
     public Mono<Void> addCard(Card card) {

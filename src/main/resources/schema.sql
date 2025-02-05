@@ -1,0 +1,9 @@
+CREATE SCHEMA IF NOT EXISTS `blackjackdb` DEFAULT CHARACTER SET utf8 ;
+USE `blackjackdb` ;
+
+CREATE TABLE IF NOT EXISTS players (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    totalBalance INT DEFAULT 0,
+    game_ids JSON DEFAULT NULL
+);

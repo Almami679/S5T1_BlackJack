@@ -2,7 +2,6 @@ package S5T1_BlackJack.S5T1_BlackJack.entities;
 
 import S5T1_BlackJack.S5T1_BlackJack.entities.enumsEntities.CardSuit;
 import S5T1_BlackJack.S5T1_BlackJack.entities.enumsEntities.CardValue;
-import S5T1_BlackJack.S5T1_BlackJack.entities.sql.Card;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;

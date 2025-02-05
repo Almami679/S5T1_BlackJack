@@ -1,26 +1,36 @@
 package S5T1_BlackJack.S5T1_BlackJack.entities.mongoDb;
 
 import S5T1_BlackJack.S5T1_BlackJack.entities.Deck;
-import S5T1_BlackJack.S5T1_BlackJack.entities.enumsEntities.ActionType;
 import S5T1_BlackJack.S5T1_BlackJack.entities.enumsEntities.statusGame;
-import S5T1_BlackJack.S5T1_BlackJack.entities.sql.Card;
+import S5T1_BlackJack.S5T1_BlackJack.entities.Card;
 import S5T1_BlackJack.S5T1_BlackJack.entities.sql.Player;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import reactor.core.publisher.Mono;
 
+import java.util.Date;
 
+@Data
+@Getter
+@Setter
 @Document(collection = "games") // Define la colección en MongoDB
 public class Game {
+    @Id
+    private int id;
     private Player player;
+    private Date gameDate;
     private final Deck deck;
     private final Hand playerHand;
     private final Hand dealerHand;
     private statusGame status;
-    private static double totalBalance = 1000;
-    private double bet;
+    private int bet;
 
     public Game(){
         this.deck = new Deck();
+        this.gameDate = new Date(System.currentTimeMillis());
         this.playerHand = new Hand();
         this.dealerHand = new Hand();
         this.status = statusGame.IN_GAME;
@@ -29,6 +39,7 @@ public class Game {
 
     public Game(Player player) {
         this.player = player;
+        this.gameDate = new Date(System.currentTimeMillis());
         this.deck = new Deck();
         this.playerHand = new Hand();
         this.dealerHand = new Hand();
@@ -36,23 +47,24 @@ public class Game {
         this.bet = 0;
     }
 
-
-    public Mono<Void> placeBet(double betAmount) {
-        if (betAmount > totalBalance) {
-            return Mono.error(new IllegalArgumentException("you don't have enough credits"));
-        }
-        this.bet = betAmount;
-        return Mono.empty();
+    public Game(int id, Date gameDate, statusGame status){
+        this.id = id;
+        this.gameDate = gameDate;
+        this.status = status;
+        this.player = null;
+        this.playerHand = null;
+        this.dealerHand = null;
+        this.deck = null;
     }
 
-
     public void updateBalance(statusGame finalStatus) {
+        int playerBalance = player.getTotalBalance();
         switch (finalStatus) {
             case PLAYER_WINS:
-                totalBalance += bet;
+                player.setTotalBalance(playerBalance + bet);
                 break;
             case HOUSE_WINS:
-                totalBalance -= bet;
+                player.setTotalBalance(playerBalance - bet);
                 break;
             case THE_GAME_WAS_DRAWN:
                 break;
@@ -62,10 +74,6 @@ public class Game {
 
     public Mono<Player> getPlayer() {
         return Mono.just(player);
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
     }
 
 
@@ -84,6 +92,37 @@ public class Game {
     }
 
 
+    public double getBet() {
+        return bet;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public Game setId(int id) {
+        this.id = id;
+        return this;
+    }
+
+    public Game setPlayer(Player player) {
+        this.player = player;
+        return this;
+    }
+
+    public Date getGameDate() {
+        return gameDate;
+    }
+
+    public Game setGameDate(Date gameDate) {
+        this.gameDate = gameDate;
+        return this;
+    }
+
+    public Deck getDeck() {
+        return deck;
+    }
+
     public Hand getPlayerHand() {
         return playerHand;
     }
@@ -95,16 +134,15 @@ public class Game {
     public statusGame getStatus() {
         return status;
     }
-    public void setStatus(statusGame statusGame) {
-        status = statusGame;
+
+    public Game setStatus(statusGame status) {
+        this.status = status;
+        return this;
     }
 
-    public double getTotalBalance() {
-        return totalBalance;
-    }
-
-    public double getBet() {
-        return bet;
+    public Game setBet(int bet) {
+        this.bet = bet;
+        return this;
     }
 }
 

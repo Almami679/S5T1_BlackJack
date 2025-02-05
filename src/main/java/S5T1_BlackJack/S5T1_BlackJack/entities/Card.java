@@ -1,4 +1,4 @@
-package S5T1_BlackJack.S5T1_BlackJack.entities.sql;
+package S5T1_BlackJack.S5T1_BlackJack.entities;
 
 
 import S5T1_BlackJack.S5T1_BlackJack.entities.enumsEntities.CardSuit;

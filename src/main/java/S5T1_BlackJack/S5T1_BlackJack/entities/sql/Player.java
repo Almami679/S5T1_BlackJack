@@ -1,6 +1,8 @@
 package S5T1_BlackJack.S5T1_BlackJack.entities.sql;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "players")
@@ -16,6 +18,7 @@ public class Player {
     private int games;
     private int winGames;
     private double score;
+    private int totalBalance;
 
     public Player() {
     }
@@ -25,42 +28,59 @@ public class Player {
         this.games = 0;
         this.winGames = 0;
         this.score = 0;
+        this.totalBalance = 10000;
+    }
+
+    public int getTotalBalance() {
+        return totalBalance;
+    }
+
+    public void setTotalBalance(int balance) {
+        this.totalBalance = balance;
     }
 
     public int getId() {
         return id;
     }
 
+    public Player setId(int id) {
+        this.id = id;
+        return this;
+    }
+
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Player setName(String name) {
         this.name = name;
+        return this;
     }
 
     public int getGames() {
         return games;
     }
 
-    public void setGames(int games) {
+    public Player setGames(int games) {
         this.games = games;
+        return this;
     }
 
     public int getWinGames() {
         return winGames;
     }
 
-    public void setWinGames(int winGames) {
+    public Player setWinGames(int winGames) {
         this.winGames = winGames;
+        return this;
     }
 
     public double getScore() {
         return score;
     }
 
-    public void setScore(double score) {
+    public Player setScore(double score) {
         this.score = score;
+        return this;
     }
-
 }

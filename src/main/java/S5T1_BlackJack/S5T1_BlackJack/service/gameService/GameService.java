@@ -12,6 +12,7 @@ import S5T1_BlackJack.S5T1_BlackJack.exceptions.GameNotFoundException;
 import S5T1_BlackJack.S5T1_BlackJack.repository.GameRepository;
 import S5T1_BlackJack.S5T1_BlackJack.service.playerService.PlayerService;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -22,16 +23,18 @@ public class GameService implements GameServiceInterface {
     private GameRepository gameRepository;
 
     public Mono<Game> addGame(PlayerDTO playerDTO) {
-        if(playerService.getPlayerByName(playerDTO) == null) {
+        if(!playerService.checkPlayer(playerDTO)) {
             playerService.addPlayer(playerDTO);
             Player playerGame = new Player();
-            playerGame.setName(playerDTO.name());
+            playerGame.setName(playerDTO.getName());
             Game game = new Game(playerGame);
+            game.setId(getNextId().block());
             gameRepository.save(game);
             return Mono.just(game);
 
         } else {
             Game game = new Game(playerService.getPlayerByName(playerDTO));
+            game.setId(getNextId().block());
             gameRepository.save(game);
             return Mono.just(game);
         }
@@ -46,44 +49,39 @@ public class GameService implements GameServiceInterface {
 
     }
 
-    @Override
-    public Mono<Void> newBet(double betAmount) {
-        if (betAmount > game.getTotalBalance()) {
-            return Mono.error(new IllegalArgumentException("Saldo insuficiente para apostar"));
-        }
-        return game.placeBet(betAmount);
-    }
-
-    @Override
-    public Mono<Void> placeBet(double betAmount) {
-        return game.placeBet(betAmount);
+    public Mono<Game> verifyBetAmount(Game game, int betAmount) {
+        return game.getPlayer()
+                .map(Player::getTotalBalance)
+                .flatMap(balance -> {
+                    if (balance == null || betAmount > balance) {
+                        return Mono.error(new IllegalArgumentException("You don't have enough credits"));
+                    }
+                    game.setBet(betAmount);
+                    return Mono.just(game);
+                });
     }
 
     @Override
     public Mono<Game> playTurn(Game game, ActionType actionType) {
-            if (game.getBet() > 0) {
-                if (game.getStatus() != statusGame.IN_GAME) {
-                    return Mono.just(game);
-                }
+        if (game.getBet() <= 0) {
+            return Mono.error(new GameHasNotBetException("Game has no Bet"));
+        }
 
-                if (actionType == ActionType.STAND) {
-                    return dealerTurn();
-                }
+        if (game.getStatus() != statusGame.IN_GAME) {
+            return Mono.just(game);
+        }
 
-                return game.nextCard()
-                        .flatMap(game.getPlayerHand()::addCard)
-                        .then(game.getPlayerScore())
-                        .flatMap(score -> {
-                            if (score > 21) {
-                                game.setStatus(statusGame.HOUSE_WINS);
-                                return Mono.just(game);
-                            }
-                            return Mono.just(game);
-                        });
-            } else  { throw new GameHasNotBetException("Game not has Bet");}
+        if (actionType == ActionType.STAND) {
+            return dealerTurn();
+        }
+
+        return game.nextCard()
+                .flatMap(game.getPlayerHand()::addCard)
+                .then(checkGameStatus());
     }
 
-    private Mono<Game> dealerTurn() {
+    @Override
+    public Mono<Game> dealerTurn() {
         return game.getDealerScore()
                 .flatMap(score -> {
                     if (score < 17) {
@@ -91,29 +89,39 @@ public class GameService implements GameServiceInterface {
                                 .flatMap(game.getDealerHand()::addCard)
                                 .then(dealerTurn());
                     }
-                    return determineWinner();
+                    return checkGameStatus();
                 });
     }
 
-    private Mono<Game> determineWinner() {
+    @Override
+    public Mono<Game> checkGameStatus() {
         return game.getPlayerScore()
                 .flatMap(playerScore -> game.getDealerScore()
-                        .map(dealerScore -> {
-                            statusGame result;
-                            if (playerScore > 21) {
-                                result = statusGame.HOUSE_WINS;
-                            } else if (dealerScore > 21) {
-                                result = statusGame.PLAYER_WINS;
-                            } else if (playerScore > dealerScore) {
-                                result = statusGame.PLAYER_WINS;
-                            } else if (dealerScore > playerScore) {
-                                result = statusGame.HOUSE_WINS;
-                            } else {
-                                result = statusGame.THE_GAME_WAS_DRAWN;
-                            }
-                            game.updateBalance(result);
-                            return game;
-                        }));
+                        .flatMap(dealerScore -> game.getPlayerHand().checkBlackjack()
+                                .flatMap(playerHasBlackjack -> {
+                                    statusGame output;
+
+                                    if (playerHasBlackjack) {
+                                        output = statusGame.PLAYER_WINS;
+                                    } else if (playerScore > 21) {
+                                        output = statusGame.HOUSE_WINS;
+                                    } else if (dealerScore > 21) {
+                                        output = statusGame.PLAYER_WINS;
+                                    } else if (playerScore > dealerScore) {
+                                        output = statusGame.PLAYER_WINS;
+                                    } else if (dealerScore > playerScore) {
+                                        output = statusGame.HOUSE_WINS;
+                                    } else {
+                                        output = statusGame.THE_GAME_WAS_DRAWN;
+                                    }
+
+                                    game.setStatus(output);
+                                    game.updateBalance(output);
+
+                                    return Mono.just(game);
+                                })
+                        )
+                );
     }
 
     @Override
@@ -131,11 +139,17 @@ public class GameService implements GameServiceInterface {
         return Mono.just(game.getDealerHand());
     }
 
-    @Override
-    public Mono<Double> getBalance() {
-        return Mono.just(game.getTotalBalance());
+    public Flux<Game> getAllGames(){
+       return (Flux<Game>) gameRepository.findAll();
     }
 
+    public Mono<Integer> getNextId(){
+        return getAllGames().collectList()
+                .map(game -> game.stream()
+                        .mapToInt(Game::getId)
+                .max()
+                .orElse(0) + 1);
+    }
 
 
 }

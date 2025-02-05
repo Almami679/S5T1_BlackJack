@@ -17,7 +17,7 @@ public class PlayerService implements PlayerServiceInteface {
     @Override
     public Player addPlayer(PlayerDTO playerDto) {
         Player player = new Player();
-        player.setName(playerDto.name());
+        player.setName(playerDto.getName());
         playerRepository.findPlayerByName(player.getName())
                 .ifPresent(existingFruit -> {
                     throw new DuplicatedPlayerException("Entity with the name '" + player.getName() + "' already exists.");
@@ -27,16 +27,16 @@ public class PlayerService implements PlayerServiceInteface {
 
     }
 
-    @Override
-    public Player updatePlayer(Player updatedPlayer) {
-        Player dbPlayer = playerRepository.findById(updatedPlayer.getId())
-                .orElseThrow(() -> new PlayerNotFoundException("Player not found with id " + updatedPlayer.getId()));
-
-        PlayerDTO validatedValues = new PlayerDTO(updatedPlayer.getName());
-        dbPlayer.setName(validatedValues.name());
-
-        return playerRepository.save(dbPlayer);
-    }
+//    @Override
+//    public Player updatePlayer(Player updatedPlayer) {
+//        playerRepository.findById(updatedPlayer.getId())
+//                .orElseThrow(() -> new PlayerNotFoundException("Player not found with id " + updatedPlayer.getId()));
+//        Player dbPlayer = playerRepository.getReferenceById(updatedPlayer.getId());
+//        PlayerDTO validatedValues = new PlayerDTO(updatedPlayer.getName());
+//        dbPlayer.setName(validatedValues.getName());
+//
+//        return playerRepository.save(dbPlayer);
+//    }
 
     @Override
     public Player getPlayer(int id) {
@@ -45,12 +45,13 @@ public class PlayerService implements PlayerServiceInteface {
 
     @Override
     public Player getPlayerByName(PlayerDTO playerName){
-        return playerRepository.findPlayerByName(playerName.name())
+        return playerRepository.findPlayerByName(playerName.getName())
                 .orElseThrow(() -> new PlayerNotFoundException("Player not found"));
     }
 
     public boolean checkPlayer(PlayerDTO playerName) {
-        return getAllPlayers().contains(new
+        return getAllPlayers().stream().anyMatch(
+                player -> player.getName().equalsIgnoreCase(playerName.getName()));
     }
 
     @Override
