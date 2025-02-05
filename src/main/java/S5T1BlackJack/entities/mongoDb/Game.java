@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.Date;
@@ -16,7 +17,8 @@ import java.util.Date;
 @Data
 @Getter
 @Setter
-@Document(collection = "games") // Define la colección en MongoDB
+@Component
+@Document(collection = "games")
 public class Game {
     @Id
     private int id;

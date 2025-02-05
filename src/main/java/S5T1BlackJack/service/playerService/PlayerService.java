@@ -23,7 +23,7 @@ public class PlayerService implements PlayerServiceInteface {
                     throw new DuplicatedPlayerException("Entity with the name '" + player.getName() + "' already exists.");
                 });
 
-        return playerRepository.save(player);
+        return playerRepository.save(player).block();
 
     }
 

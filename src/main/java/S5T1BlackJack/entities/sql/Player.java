@@ -1,21 +1,28 @@
 package S5T1BlackJack.entities.sql;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
-@Table(name = "players")
+@Table("players") // Nombre de la tabla en MySQL
 public class Player {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
-    @Column(length = 50)
+    @Column("name")
     private String name;
 
+    @Column("games")
     private int games;
+
+    @Column("win_games")
     private int winGames;
+
+    @Column("score")
     private double score;
+
+    @Column("total_balance")
     private int totalBalance;
 
     public Player() {
