@@ -7,8 +7,9 @@ import S5T1BlackJack.exceptions.PlayerNotFoundException;
 import S5T1BlackJack.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
 @Service
 public class PlayerService implements PlayerServiceInteface {
 
@@ -16,45 +17,48 @@ public class PlayerService implements PlayerServiceInteface {
     private PlayerRepository playerRepository;
 
     @Override
-    public Player addPlayer(Player player) {
-        playerRepository.findPlayerByName(player.getName())
-                .ifPresent(existingFruit -> {
-                    throw new DuplicatedPlayerException("Entity with the name '" + player.getName() + "' already exists.");
+    public Mono<Player> addPlayer(Player player) {
+        return playerRepository.findPlayerByName(player.getName()) // Esto ya es un Mono<Player>
+                .flatMap(existingPlayer -> Mono.error(new DuplicatedPlayerException("Entity with the name '" + player.getName() + "' already exists.")))
+                .switchIfEmpty(playerRepository.save(player))
+                .cast(Player.class);
+    }
+
+
+
+
+    @Override
+    public Mono<Player> updatePlayer(Player updatedPlayer) {
+        return playerRepository.findById(updatedPlayer.getId())
+                .switchIfEmpty(Mono.error(new PlayerNotFoundException("Player not found with id " + updatedPlayer.getId())))
+                .flatMap(dbPlayer -> {
+                    dbPlayer.setName(updatedPlayer.getName());
+                    return playerRepository.save(dbPlayer);
                 });
-
-        return playerRepository.save(player).block();
-
     }
 
-//    @Override
-//    public Player updatePlayer(Player updatedPlayer) {
-//        playerRepository.findById(updatedPlayer.getId())
-//                .orElseThrow(() -> new PlayerNotFoundException("Player not found with id " + updatedPlayer.getId()));
-//        Player dbPlayer = playerRepository.getReferenceById(updatedPlayer.getId());
-//        PlayerDTO validatedValues = new PlayerDTO(updatedPlayer.getName());
-//        dbPlayer.setName(validatedValues.getName());
-//
-//        return playerRepository.save(dbPlayer);
-//    }
 
     @Override
-    public Player getPlayer(int id) {
-        return null;
+    public Mono<Player> getPlayer(int id) {
+        return playerRepository.findById(id)
+                .switchIfEmpty(Mono.error(new PlayerNotFoundException("Player not found with id " + id)));
     }
 
     @Override
-    public Player getPlayerByName(PlayerDTO playerName){
-        return playerRepository.findPlayerByName(playerName.getName())
-                .orElseThrow(() -> new PlayerNotFoundException("Player not found"));
+    public Mono<Player> getPlayerByName(PlayerDTO playerName) {
+        return Mono.justOrEmpty(playerRepository.findPlayerByName(playerName.getName()))
+                .switchIfEmpty(Mono.error(new PlayerNotFoundException("Player not found"))).block();
     }
 
-    public boolean checkPlayer(PlayerDTO playerName) {
-        return getAllPlayers().stream().anyMatch(
-                player -> player.getName().equalsIgnoreCase(playerName.getName()));
+    public Mono<Boolean> checkPlayer(PlayerDTO playerName) {
+        return getAllPlayers()
+                .filter(player -> player.getName().equalsIgnoreCase(playerName.getName()))
+                .hasElements();
     }
+
 
     @Override
-    public List<Player> getAllPlayers() {
-        return List.of();
+    public Flux<Player> getAllPlayers() {
+        return playerRepository.findAll();
     }
 }

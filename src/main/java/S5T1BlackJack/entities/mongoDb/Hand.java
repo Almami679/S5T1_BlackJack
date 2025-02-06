@@ -1,5 +1,6 @@
 package S5T1BlackJack.entities.mongoDb;
 import S5T1BlackJack.entities.Card;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -11,16 +12,25 @@ import java.util.List;
 @Document(collection = "hands")
 @Getter
 @Setter
+@Schema(description = "Hand entity representing a player's cards and bet")
 public class Hand {
+
     @Id
-    private int id;
-    private int playerId;
+    @Schema(description = "Hand ID", example = "60b8d295f1b2c93d2f1e7b9e")
+    private String id;
+
+    @Schema(description = "Player ID associated with this hand", example = "123456")
+    private String playerId;
+
+    @Schema(description = "List of cards in hand")
     private List<Card> cards;
+
+    @Schema(description = "Bet amount for this hand", example = "50.0")
     private double bet;
 
     public Hand() {}
 
-    public Hand(int id, int playerId, List<Card> cards, double bet) {
+    public Hand(String id, String playerId, List<Card> cards, double bet) {
         this.id = id;
         this.playerId = playerId;
         this.cards = cards;

@@ -2,15 +2,15 @@ package S5T1BlackJack.service.playerService;
 
 import S5T1BlackJack.DTO.PlayerDTO;
 import S5T1BlackJack.entities.sql.Player;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface PlayerServiceInteface {
 
-    Player addPlayer(Player player);
-//    Player updatePlayer(Player updatedPlayer);
-    Player getPlayer(int id);
-    Player getPlayerByName(PlayerDTO playerName);
-    List<Player> getAllPlayers();
-    boolean checkPlayer(PlayerDTO playerName);
+    Mono<Player> addPlayer(Player player);
+    Mono<Player> updatePlayer(Player updatedPlayer);
+    Mono<Player> getPlayer(int id);
+    Mono<Player> getPlayerByName(PlayerDTO playerName);
+    Flux<Player> getAllPlayers();
+    Mono<Boolean> checkPlayer(PlayerDTO playerName);
 }

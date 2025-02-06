@@ -5,6 +5,7 @@ import S5T1BlackJack.entities.enumsEntities.statusGame;
 import S5T1BlackJack.entities.Card;
 import S5T1BlackJack.entities.sql.Player;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,16 +21,33 @@ import java.util.Date;
 @Setter
 @Component
 @Document(collection = "games")
+@Schema(description = "Game entity representing a blackjack game session")
 public class Game {
+
     @Id
-    private int id;
+    @Schema(description = "Game ID", example = "123456789abcdef")
+    private String id;
+
+    @Schema(description = "Player in the game")
     private Player player;
+
+    @Schema(description = "Game creation date")
     private Date gameDate;
+
     @JsonIgnore
-    private final Deck deck;
-    private final Hand playerHand;
-    private final Hand dealerHand;
+    @Schema(description = "Deck of cards used in the game", hidden = true)
+    private Deck deck;
+
+    @Schema(description = "Player's hand of cards")
+    private Hand playerHand;
+
+    @Schema(description = "Dealer's hand of cards")
+    private Hand dealerHand;
+
+    @Schema(description = "Current game status")
     private statusGame status;
+
+    @Schema(description = "Bet amount for the game", example = "100")
     private int bet;
 
     public Game(){
@@ -51,7 +69,7 @@ public class Game {
         this.bet = 0;
     }
 
-    public Game(int id, Date gameDate, statusGame status){
+    public Game(String id, Date gameDate, statusGame status){
         this.id = id;
         this.gameDate = gameDate;
         this.status = status;
@@ -100,13 +118,8 @@ public class Game {
         return bet;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
-    }
-
-    public Game setId(int id) {
-        this.id = id;
-        return this;
     }
 
     public Game setPlayer(Player player) {

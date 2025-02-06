@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ import reactor.core.publisher.Mono;
 public class GameController {
 
     @Autowired
-    private GameServiceInterface gameService;
+    private final GameServiceInterface gameService;
 
 
     public GameController(GameServiceInterface gameService) {
@@ -30,7 +31,7 @@ public class GameController {
     }
 
     @PostMapping("/game/new")
-    public Mono<ResponseEntity<Game>> newGame(@RequestBody PlayerDTO playerDTO) {
+    public Mono<ResponseEntity<Game>> newGame(@Valid @RequestBody PlayerDTO playerDTO) {
         return gameService.addGame(playerDTO)
                 .map(game -> ResponseEntity.status(HttpStatus.CREATED).body(game));
     }
@@ -42,7 +43,7 @@ public class GameController {
             @ApiResponse(responseCode = "400", description = "Error")
     })
     @GetMapping("/game/{id}")
-    public Mono<ResponseEntity<Game>> getOneFruit(@PathVariable int id) {
+    public Mono<ResponseEntity<Game>> getOneFruit(@PathVariable String id) {
        return gameService.getGame(id).map(ResponseEntity::ok);
     }
 
@@ -51,13 +52,20 @@ public class GameController {
     @Operation(summary = "Play this game")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Play success",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Game.class))),
-            @ApiResponse(responseCode = "404", description = "Error")
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Game.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid action type"),
+            @ApiResponse(responseCode = "404", description = "Game not found")
     })
     @PostMapping("/game/{id}/play/{action}")
-    public Mono<ResponseEntity<Game>> playTurn(@PathVariable int id, ActionType action) {
-        return gameService.playTurn(gameService.getGame(id).block(),action).map(ResponseEntity::ok);
+    public Mono<ResponseEntity<Game>> playTurn(@PathVariable String id,
+                                               @Valid @PathVariable String action) {
+        return gameService.getGame(id)
+                .flatMap(game -> gameService.playTurn(game, ActionType.fromString(action)))
+                .map(ResponseEntity::ok)
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
+
 
 
     @Operation(summary = "Make a new bet")
@@ -67,7 +75,7 @@ public class GameController {
             @ApiResponse(responseCode = "404", description = "Error")
     })
     @PostMapping("/game/{id}/bet/{amount}")
-    public Mono<ResponseEntity<Game>> makeBet(@PathVariable int id, int amount) {
+    public Mono<ResponseEntity<Game>> makeBet(@PathVariable String id, int amount) {
         return gameService.verifyBetAmount(gameService.getGame(id).block(), amount)
                 .map(game -> ResponseEntity.status(HttpStatus.CREATED).body(game));
     }

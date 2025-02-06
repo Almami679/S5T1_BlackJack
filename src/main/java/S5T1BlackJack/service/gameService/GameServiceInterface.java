@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 public interface GameServiceInterface {
 
     Mono<Game> addGame(PlayerDTO playerDTO);
-    Mono<Game> getGame(int id);
+    Mono<Game> getGame(String id);
     Mono<Game> verifyBetAmount(Game game,int betAmount);
     Mono<Game> playTurn(Game game, ActionType action);
     Mono<Game> checkGameStatus(Game game);
@@ -19,7 +19,6 @@ public interface GameServiceInterface {
     Mono<statusGame> getGameStatus(Game game);
     Mono<Hand> getPlayerHand(Game game);
     Mono<Hand> getDealerHand(Game game);
-    Mono<Integer> getNextId();
     Flux<Game> getAllGames();
 
 }

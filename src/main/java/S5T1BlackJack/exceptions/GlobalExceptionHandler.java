@@ -17,6 +17,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ActionNotAvailableException.class)
+    public ResponseEntity<String> handleActionNotAvailabeException(GameNotFoundException e) {
+        log.error("Action Error: {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(GameHasNotBetException.class)
     public ResponseEntity<String> handleNotBetException(GameHasNotBetException e) {
         log.error("Error due to this game has not Bet: {}", e.getMessage());

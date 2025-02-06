@@ -31,28 +31,33 @@ public class GameService implements GameServiceInterface {
     }
 
     public Mono<Game> addGame(PlayerDTO playerDTO) {
-        if(!playerService.checkPlayer(playerDTO)) {
-            playerService.addPlayer(playerDTO);
-            Player playerGame = new Player();
-            playerGame.setName(playerDTO.getName());
-            playerService.addPlayer(playerGame);
-            Game game = new Game(playerGame);
-            game.setId(getNextId().block());
-            gameRepository.save(game);
-            return Mono.just(game);
+        return playerService.checkPlayer(playerDTO)
+                .flatMap(playerExists -> {
+                    if (!playerExists) {
+                        Player playerGame = new Player();
+                        playerGame.setName(playerDTO.getName());
 
-        } else {
-            Game game = new Game(playerService.getPlayerByName(playerDTO));
-            game.setId(getNextId().block());
-            gameRepository.save(game);
-            return Mono.just(game);
-        }
+                        return playerService.addPlayer(playerGame)
+                                .flatMap(savedPlayer -> {
+                                    Game game = new Game(savedPlayer);
+                                    return gameRepository.save(game);
+                                });
+                    } else {
+                        return playerService.getPlayerByName(playerDTO)
+                                .flatMap(existingPlayer -> {
+                                    Game game = new Game(existingPlayer);
+                                    return gameRepository.save(game);
+                                });
+                    }
+                });
     }
 
 
-    public Mono<Game> getGame(int id){
-        return Mono.just(gameRepository.findById(id)
-                .orElseThrow(() -> new GameNotFoundException("Fruit not found with id " + id)));
+
+
+    public Mono<Game> getGame(String id){
+        return gameRepository.findById(id)
+                .switchIfEmpty(Mono.error(new GameNotFoundException("Game not found with id: " + id)));
 
     }
 
@@ -150,13 +155,6 @@ public class GameService implements GameServiceInterface {
        return (Flux<Game>) gameRepository.findAll();
     }
 
-    public Mono<Integer> getNextId(){
-        return getAllGames().collectList()
-                .map(game -> game.stream()
-                        .mapToInt(Game::getId)
-                .max()
-                .orElse(0) + 1);
-    }
 
 
 }

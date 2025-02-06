@@ -18,11 +18,11 @@ public class MongoDataLoader  {
         return args -> {
             gameRepository.deleteAll()
                     .thenMany(Flux.just(
-                            new Game(1, new Date(System.currentTimeMillis()), statusGame.HOUSE_WINS),
-                            new Game(2, new Date(System.currentTimeMillis()), statusGame.THE_GAME_WAS_DRAWN),
-                            new Game(3, new Date(System.currentTimeMillis()), statusGame.HOUSE_WINS),
-                            new Game(4, new Date(System.currentTimeMillis()), statusGame.PLAYER_WINS),
-                            new Game(5, new Date(System.currentTimeMillis()), statusGame.PLAYER_WINS)
+                            new Game("game1",new Date(System.currentTimeMillis()), statusGame.HOUSE_WINS),
+                            new Game("game2", new Date(System.currentTimeMillis()), statusGame.THE_GAME_WAS_DRAWN),
+                            new Game("game3", new Date(System.currentTimeMillis()), statusGame.HOUSE_WINS),
+                            new Game("game4", new Date(System.currentTimeMillis()), statusGame.PLAYER_WINS),
+                            new Game("game5", new Date(System.currentTimeMillis()), statusGame.PLAYER_WINS)
                     ))
                     .flatMap(gameRepository::save);
         };
