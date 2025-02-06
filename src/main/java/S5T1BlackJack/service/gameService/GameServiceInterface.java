@@ -14,11 +14,11 @@ public interface GameServiceInterface {
     Mono<Game> getGame(int id);
     Mono<Game> verifyBetAmount(Game game,int betAmount);
     Mono<Game> playTurn(Game game, ActionType action);
-    Mono<Game> checkGameStatus();
-    Mono<Game> dealerTurn();
-    Mono<statusGame> getGameStatus();
-    Mono<Hand> getPlayerHand();
-    Mono<Hand> getDealerHand();
+    Mono<Game> checkGameStatus(Game game);
+    Mono<Game> dealerTurn(Game game);
+    Mono<statusGame> getGameStatus(Game game);
+    Mono<Hand> getPlayerHand(Game game);
+    Mono<Hand> getDealerHand(Game game);
     Mono<Integer> getNextId();
     Flux<Game> getAllGames();
 

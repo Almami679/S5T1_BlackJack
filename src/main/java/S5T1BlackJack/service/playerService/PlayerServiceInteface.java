@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface PlayerServiceInteface {
 
-    Player addPlayer(PlayerDTO playerDto);
+    Player addPlayer(Player player);
 //    Player updatePlayer(Player updatedPlayer);
     Player getPlayer(int id);
     Player getPlayerByName(PlayerDTO playerName);

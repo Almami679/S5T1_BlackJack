@@ -6,18 +6,17 @@ import S5T1BlackJack.exceptions.DuplicatedPlayerException;
 import S5T1BlackJack.exceptions.PlayerNotFoundException;
 import S5T1BlackJack.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class PlayerService implements PlayerServiceInteface {
 
     @Autowired
     private PlayerRepository playerRepository;
 
     @Override
-    public Player addPlayer(PlayerDTO playerDto) {
-        Player player = new Player();
-        player.setName(playerDto.getName());
+    public Player addPlayer(Player player) {
         playerRepository.findPlayerByName(player.getName())
                 .ifPresent(existingFruit -> {
                     throw new DuplicatedPlayerException("Entity with the name '" + player.getName() + "' already exists.");

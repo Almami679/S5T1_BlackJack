@@ -4,6 +4,6 @@ USE `blackjackdb` ;
 CREATE TABLE IF NOT EXISTS players (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    totalBalance INT DEFAULT 0,
-    game_ids JSON DEFAULT NULL
+    total_balance INT DEFAULT 0,
+    score DOUBLE DEFAULT 0
 );

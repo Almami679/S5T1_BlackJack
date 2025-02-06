@@ -4,6 +4,7 @@ import S5T1BlackJack.entities.Deck;
 import S5T1BlackJack.entities.enumsEntities.statusGame;
 import S5T1BlackJack.entities.Card;
 import S5T1BlackJack.entities.sql.Player;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +25,7 @@ public class Game {
     private int id;
     private Player player;
     private Date gameDate;
+    @JsonIgnore
     private final Deck deck;
     private final Hand playerHand;
     private final Hand dealerHand;

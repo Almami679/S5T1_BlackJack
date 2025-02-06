@@ -10,6 +10,8 @@ import S5T1BlackJack.exceptions.GameHasNotBetException;
 import S5T1BlackJack.exceptions.GameNotFoundException;
 import S5T1BlackJack.repository.GameRepository;
 import S5T1BlackJack.service.playerService.PlayerService;
+import S5T1BlackJack.service.playerService.PlayerServiceInteface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,15 +19,23 @@ import reactor.core.publisher.Mono;
 @Service
 public class GameService implements GameServiceInterface {
 
-    private final Game game;
+
+    @Autowired
     private PlayerService playerService;
+    @Autowired
     private GameRepository gameRepository;
+
+    public GameService(PlayerService playerService, GameRepository gameRepository) {
+        this.playerService = playerService;
+        this.gameRepository = gameRepository;
+    }
 
     public Mono<Game> addGame(PlayerDTO playerDTO) {
         if(!playerService.checkPlayer(playerDTO)) {
             playerService.addPlayer(playerDTO);
             Player playerGame = new Player();
             playerGame.setName(playerDTO.getName());
+            playerService.addPlayer(playerGame);
             Game game = new Game(playerGame);
             game.setId(getNextId().block());
             gameRepository.save(game);
@@ -38,9 +48,7 @@ public class GameService implements GameServiceInterface {
             return Mono.just(game);
         }
     }
-    public GameService(Player player) {
-        this.game = new Game(player);
-    }
+
 
     public Mono<Game> getGame(int id){
         return Mono.just(gameRepository.findById(id)
@@ -71,29 +79,29 @@ public class GameService implements GameServiceInterface {
         }
 
         if (actionType == ActionType.STAND) {
-            return dealerTurn();
+            return dealerTurn(game);
         }
 
         return game.nextCard()
                 .flatMap(game.getPlayerHand()::addCard)
-                .then(checkGameStatus());
+                .then(checkGameStatus(game));
     }
 
     @Override
-    public Mono<Game> dealerTurn() {
+    public Mono<Game> dealerTurn(Game game) {
         return game.getDealerScore()
                 .flatMap(score -> {
                     if (score < 17) {
                         return game.nextCard()
                                 .flatMap(game.getDealerHand()::addCard)
-                                .then(dealerTurn());
+                                .then(dealerTurn(game));
                     }
-                    return checkGameStatus();
+                    return checkGameStatus(game);
                 });
     }
 
     @Override
-    public Mono<Game> checkGameStatus() {
+    public Mono<Game> checkGameStatus(Game game) {
         return game.getPlayerScore()
                 .flatMap(playerScore -> game.getDealerScore()
                         .flatMap(dealerScore -> game.getPlayerHand().checkBlackjack()
@@ -124,17 +132,17 @@ public class GameService implements GameServiceInterface {
     }
 
     @Override
-    public Mono<statusGame> getGameStatus() {
+    public Mono<statusGame> getGameStatus(Game game) {
         return Mono.just(game.getStatus());
     }
 
     @Override
-    public Mono<Hand> getPlayerHand() {
+    public Mono<Hand> getPlayerHand(Game game) {
         return Mono.just(game.getPlayerHand());
     }
 
     @Override
-    public Mono<Hand> getDealerHand() {
+    public Mono<Hand> getDealerHand(Game game) {
         return Mono.just(game.getDealerHand());
     }
 

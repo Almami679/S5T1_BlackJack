@@ -1,6 +1,6 @@
-INSERT INTO blackjackdb.players (name, totalBalance, game_ids) VALUES
-('Alice', 5000, '["game1", "game3"]'),
-('Bob', 7000, '["game2"]'),
-('Charlie', 3000, '["game4", "game5"]'),
-('David', 10000, '["game6"]'),
-('Eve', 2500, '["game7", "game8"]');
+INSERT INTO blackjackdb.players (name, totalBalance, score) VALUES
+('Alice', 5000, 45),
+('Bob', 7000, 32.5),
+('Charlie', 3000, 12.8),
+('David', 10000, 30),
+('Eve', 2500, 23);
