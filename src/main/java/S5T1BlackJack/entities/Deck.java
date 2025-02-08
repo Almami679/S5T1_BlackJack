@@ -27,7 +27,9 @@ public class Deck {
             if (cards.isEmpty()) {
                 throw new DeckIsEmptyException("No more cards in the deck");
             }
-            return cards.remove(0);
+            Card nextCard = cards.get(0);
+            cards.remove(0);
+            return nextCard;
         });
     }
 

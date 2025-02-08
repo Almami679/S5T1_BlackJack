@@ -16,22 +16,14 @@ import java.util.List;
 @Schema(description = "Hand entity representing a player's cards")
 public class Hand {
 
-    @Id
-    @Schema(description = "Hand ID", example = "60b8d295f1b2c93d2f1e7b9e")
-    private String id;
-
-    @Schema(description = "Player ID associated with this hand", example = "123456")
-    private String playerId;
 
     @Schema(description = "List of cards in hand")
     private List<Card> cards = new ArrayList<>();
 
     public Hand() {}
 
-    public Hand(String id, String playerId, List<Card> cards) {
-        this.id = id;
-        this.playerId = playerId;
-        this.cards = (cards != null) ? cards : new ArrayList<>();
+    public Hand(List<Card> cards) {
+        this.cards = cards;
     }
 
     public Mono<Integer> calculateScore() {
@@ -54,11 +46,12 @@ public class Hand {
         return calculateScore().map(score -> cards.size() == 2 && score == 21);
     }
 
-    public Mono<Void> addCard(Card card) {
+    public Mono<Hand> addCard(Card card) {
         if (this.cards == null) {
             this.cards = new ArrayList<>();
         }
         this.cards.add(card);
-        return Mono.empty();
+        return Mono.just(this);
     }
+
 }

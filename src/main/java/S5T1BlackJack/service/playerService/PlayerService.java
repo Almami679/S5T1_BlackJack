@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 @Service
 public class PlayerService implements PlayerServiceInteface {
 
@@ -24,6 +26,13 @@ public class PlayerService implements PlayerServiceInteface {
                         "Entity with the name '" + player.getName() + "' already exists.")))
                 .switchIfEmpty(playerRepository.save(player))
                 .cast(Player.class);
+    }
+
+    public Mono<Player> createNewPlayer(PlayerDTO playerDTO) {
+        Player newPlayer = new Player();
+        newPlayer.setName(playerDTO.getName());
+        newPlayer.setTotalBalance(10000);
+        return addPlayer(newPlayer);
     }
 
 
@@ -46,8 +55,7 @@ public class PlayerService implements PlayerServiceInteface {
 
     @Override
     public Mono<Player> getPlayerByName(PlayerDTO playerName) {
-        return Mono.justOrEmpty(playerRepository.findPlayerByName(playerName.getName()))
-                .switchIfEmpty(Mono.error(new PlayerNotFoundException("Player not found"))).block();
+        return playerRepository.findPlayerByName(playerName.getName());
     }
 
     public Mono<Boolean> checkPlayer(PlayerDTO playerName) {

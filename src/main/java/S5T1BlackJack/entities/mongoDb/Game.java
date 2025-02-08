@@ -39,10 +39,10 @@ public class Game {
     private final Deck deck = new Deck();
 
     @Schema(description = "Player's hand of cards")
-    private final Hand playerHand = new Hand();
+    private Hand playerHand = new Hand();
 
     @Schema(description = "Dealer's hand of cards")
-    private final Hand dealerHand = new Hand();
+    private Hand dealerHand = new Hand();
 
     @Schema(description = "Current game status")
     private statusGame status;
@@ -107,6 +107,17 @@ public class Game {
         return dealerHand.calculateScore();
     }
 
+    public void setPlayerHand(Hand updatedHand) {
+        if (updatedHand != null) {
+            this.playerHand = updatedHand;
+        }
+    }
+
+    public void setDealerHand(Hand updatedHand) {
+        if (updatedHand != null) {
+            this.dealerHand = updatedHand;
+        }
+    }
 
     public double getBet() {
         return bet;

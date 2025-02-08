@@ -34,30 +34,15 @@ public class GameService implements GameServiceInterface {
 
 
     public Mono<Game> addGame(PlayerDTO playerDTO) {
-        return playerService.checkPlayer(playerDTO)
-                .flatMap(playerExists -> {
-                    if (!playerExists) {
-                        Player playerGame = new Player();
-                        playerGame.setName(playerDTO.getName());
-                        playerGame.setTotalBalance(10000);
-
-                        return playerService.addPlayer(playerGame)
-                                .flatMap(savedPlayer -> getNextId()
-                                        .flatMap(id -> {
-                                            Game game = new Game((Player) savedPlayer);
-                                            game.setId(id);
-                                            return gameRepository.save(game);
-                                        }));
-                    } else {
-                        return playerService.getPlayerByName(playerDTO)
-                                .flatMap(existingPlayer -> getNextId()
-                                        .flatMap(id -> {
-                                            Game game = new Game(existingPlayer);
-                                            game.setId(id);
-                                            return gameRepository.save(game);
-                                        }));
-                    }
-                });
+        return playerService.getPlayerByName(playerDTO)
+                .switchIfEmpty(playerService.createNewPlayer(playerDTO))
+                .flatMap(player -> getNextId()
+                        .flatMap(id -> {
+                            Game game = new Game(player);
+                            game.setId(id);
+                            return gameRepository.save(game);
+                        })
+                );
     }
 
 
@@ -104,8 +89,11 @@ public class GameService implements GameServiceInterface {
             updatedGameMono = dealerTurn(game);
         } else {
             updatedGameMono = game.nextCard()
-                    .flatMap(game.getPlayerHand()::addCard)
-                    .then(checkGameStatus(game))
+                    .flatMap(card -> game.getPlayerHand().addCard(card))
+                    .flatMap(updatedHand -> {
+                        game.setPlayerHand(updatedHand);
+                        return checkGameStatus(game);
+                    })
                     .thenReturn(game);
         }
 
@@ -114,15 +102,22 @@ public class GameService implements GameServiceInterface {
 
     @Override
     public Mono<Game> dealerTurn(Game game) {
+        if (game.getStatus() != statusGame.IN_GAME) {
+            return Mono.just(game);
+        }
         return game.getDealerScore()
                 .flatMap(score -> {
                     if (score < 17) {
                         return game.nextCard()
                                 .flatMap(card -> game.getDealerHand().addCard(card))
-                                .then(dealerTurn(game));
+                                .flatMap(updatedHand -> {
+                                    game.setDealerHand(updatedHand);
+                                    return dealerTurn(game);
+                                });
                     }
-                    return checkGameStatus(game).flatMap(gameRepository::save);
-                });
+                    return checkGameStatus(game);
+                })
+                .flatMap(gameRepository::save);
     }
 
     @Override
@@ -153,6 +148,11 @@ public class GameService implements GameServiceInterface {
 
                                     game.setStatus(output);
                                     game.updateBalance(output);
+
+                                    if (output != statusGame.IN_GAME) {
+                                        return gameRepository.save(game)
+                                                .then(Mono.error(new GameHasFInishException("Game over: " + output)));
+                                    }
 
                                     return gameRepository.save(game);
                                 })

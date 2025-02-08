@@ -13,4 +13,5 @@ public interface PlayerServiceInteface {
     Mono<Player> getPlayerByName(PlayerDTO playerName);
     Flux<Player> getAllPlayers();
     Mono<Boolean> checkPlayer(PlayerDTO playerName);
+    Mono<Player> createNewPlayer(PlayerDTO playerDTO);
 }
