@@ -9,9 +9,8 @@ public interface PlayerServiceInteface {
 
     Mono<Player> addPlayer(Player player);
     Mono<Player> updatePlayer(Player updatedPlayer);
-    Mono<Player> getPlayer(int id);
     Mono<Player> getPlayerByName(PlayerDTO playerName);
     Flux<Player> getAllPlayers();
-    Mono<Boolean> checkPlayer(PlayerDTO playerName);
     Mono<Player> createNewPlayer(PlayerDTO playerDTO);
+    Mono<Player> changePlayerName(int playerId, String newName);
 }

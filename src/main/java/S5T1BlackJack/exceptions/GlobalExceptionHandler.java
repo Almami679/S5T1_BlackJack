@@ -17,10 +17,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(ActionNotAvailableException.class)
-    public ResponseEntity<String> handleActionNotAvailabeException(GameNotFoundException e) {
-        log.error("Action Error: {}", e.getMessage());
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(GameHasFInishException.class)
+    public ResponseEntity<String> handleGameHasFinishException(GameHasFInishException e) {
+        log.error("Game has already finished: {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(GameHasNotBetException.class)
@@ -29,8 +29,37 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(ActionNotAvailableException.class)
+    public ResponseEntity<String> handleActionNotAvailableException(ActionNotAvailableException e) {
+        log.error("Action Error: {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 
-    @ExceptionHandler(IllegalArgumentException.class) //
+    @ExceptionHandler(DeckIsEmptyException.class)
+    public ResponseEntity<String> handleDeckIsEmptyException(DeckIsEmptyException e) {
+        log.error("The deck is empty: {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DuplicatedPlayerException.class)
+    public ResponseEntity<String> handleDuplicatedPlayerException(DuplicatedPlayerException e) {
+        log.error("Duplicated player error: {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(PlayerNotFoundException.class)
+    public ResponseEntity<String> handlePlayerNotFoundException(PlayerNotFoundException e) {
+        log.error("Player not found: {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PlayerNameIsNullException.class)
+    public ResponseEntity<String> handlePlayerNameIsNullException(PlayerNameIsNullException e) {
+        log.error("Player name cannot be null: {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
         log.error("Error due to designated value NULL: {}", e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -42,3 +71,4 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>("An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
+

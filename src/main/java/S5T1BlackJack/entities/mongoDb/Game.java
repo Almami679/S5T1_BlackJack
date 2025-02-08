@@ -24,6 +24,7 @@ import java.util.Date;
 @Schema(description = "Game entity representing a blackjack game session")
 public class Game {
 
+    @Getter
     @Id
     @Schema(description = "Game ID", example = "1")
     private int id;
@@ -38,16 +39,19 @@ public class Game {
     @Schema(description = "Deck of cards used in the game", hidden = true)
     private final Deck deck = new Deck();
 
+    @Getter
     @Schema(description = "Player's hand of cards")
     private Hand playerHand = new Hand();
 
+    @Getter
     @Schema(description = "Dealer's hand of cards")
     private Hand dealerHand = new Hand();
 
+    @Getter
     @Schema(description = "Current game status")
     private statusGame status;
 
-    @Schema(description = "Bet amount for the game", example = "100")
+    @Schema(description = "Bet amount")
     private int bet;
 
     public Game(){
@@ -75,23 +79,25 @@ public class Game {
 
     }
 
-    public void updateBalance(statusGame finalStatus) {
+    public Player updateBalance(statusGame finalStatus) {
         int playerBalance = player.getTotalBalance();
+
         switch (finalStatus) {
             case PLAYER_WINS:
-                player.setTotalBalance(playerBalance + (bet));
+                player.setTotalBalance(playerBalance + bet);
                 player.setWinGames(player.getWinGames() + 1);
-                player.setScore();
                 break;
             case HOUSE_WINS:
                 player.setTotalBalance(playerBalance - bet);
                 player.setLostGames(player.getLostGames() + 1);
-                player.setScore();
                 break;
             case THE_GAME_WAS_DRAWN:
                 break;
         }
-        this.status = finalStatus;
+
+        player.setScore();
+
+        return player;
     }
 
     public Mono<Player> getPlayer() {
@@ -129,38 +135,9 @@ public class Game {
         return bet;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public Game setPlayer(Player player) {
         this.player = player;
         return this;
-    }
-
-    public Date getGameDate() {
-        return gameDate;
-    }
-
-    public Game setGameDate(Date gameDate) {
-        this.gameDate = gameDate;
-        return this;
-    }
-
-    public Deck getDeck() {
-        return deck;
-    }
-
-    public Hand getPlayerHand() {
-        return playerHand;
-    }
-
-    public Hand getDealerHand() {
-        return dealerHand;
-    }
-
-    public statusGame getStatus() {
-        return status;
     }
 
     public Game setStatus(statusGame status) {

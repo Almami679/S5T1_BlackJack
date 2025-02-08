@@ -21,9 +21,13 @@ public class Player {
     @Column("total_balance")
     private int totalBalance;
 
+    @Getter
+    @Setter
     @Column("total_win_games")
     private int winGames;
 
+    @Getter
+    @Setter
     @Column("total_lost_games")
     private int lostGames;
 
@@ -55,9 +59,8 @@ public class Player {
         return this;
     }
 
-
-    public double getScore() {
-        return score;
+    public int getScore() {
+        return (int) score;
     }
 
     public void setScore() {

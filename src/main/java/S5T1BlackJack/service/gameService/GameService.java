@@ -1,6 +1,7 @@
 package S5T1BlackJack.service.gameService;
 
 import S5T1BlackJack.DTO.PlayerDTO;
+import S5T1BlackJack.DTO.PlayerRankDTO;
 import S5T1BlackJack.entities.enumsEntities.ActionType;
 import S5T1BlackJack.entities.enumsEntities.statusGame;
 import S5T1BlackJack.entities.mongoDb.Game;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 @Service
@@ -130,49 +132,48 @@ public class GameService implements GameServiceInterface {
                                 .flatMap(playerHasBlackjack -> {
                                     statusGame output;
 
-
-                                    if (game.getDealerHand().getCards().isEmpty()) {
+                                    // 1. Si el jugador se pasa de 21, pierde inmediatamente
+                                    if (playerScore > 21) {
+                                        output = statusGame.HOUSE_WINS;
+                                    }
+                                    // 2. Si el dealer aún no ha jugado, el juego sigue
+                                    else if (game.getDealerHand().getCards().isEmpty()) {
                                         output = statusGame.IN_GAME;
-                                    } else if (playerHasBlackjack && dealerScore != 21) {
+                                    }
+                                    // 3. Si el jugador tiene blackjack pero el dealer no, gana
+                                    else if (playerHasBlackjack && dealerScore != 21) {
                                         output = statusGame.PLAYER_WINS;
-
-                                    } else if (playerScore > 21) {
-                                        output = statusGame.HOUSE_WINS;
-                                    } else if (dealerScore > 21) {
+                                    }
+                                    // 4. Si el dealer se pasa de 21, el jugador gana
+                                    else if (dealerScore > 21) {
                                         output = statusGame.PLAYER_WINS;
-                                    } else if (playerScore > dealerScore) {
-                                        output = statusGame.PLAYER_WINS;
-                                    } else if (dealerScore > playerScore) {
-                                        output = statusGame.HOUSE_WINS;
-                                    } else {
+                                    }
+                                    // 5. Si el jugador y el dealer tienen el mismo puntaje, empate
+                                    else if (playerScore.equals(dealerScore)) {
                                         output = statusGame.THE_GAME_WAS_DRAWN;
+                                    }
+                                    // 6. Si el jugador tiene más puntos que el dealer, gana
+                                    else if (playerScore > dealerScore) {
+                                        output = statusGame.PLAYER_WINS;
+                                    }
+                                    // 7. Si el dealer tiene más puntos que el jugador, gana el dealer
+                                    else {
+                                        output = statusGame.HOUSE_WINS;
                                     }
 
                                     game.setStatus(output);
-                                    game.updateBalance(output);
-                                    return Mono.justOrEmpty(game.getPlayer())
-                                            .flatMap(player -> playerService.updatePlayer(player.block()))
-                                            .flatMap(updatedPlayer -> {
-                                                game.setPlayer(updatedPlayer);
-                                                return gameRepository.save(game);
-                                            });
+
+
+                                    if (output != statusGame.IN_GAME) {
+                                        Player updatedPlayer = game.updateBalance(output);
+                                        return playerService.updatePlayer(updatedPlayer)
+                                                .then(gameRepository.save(game));
+                                    } else {
+                                        return Mono.just(game);
+                                    }
                                 })
-                ));
-    }
-
-    @Override
-    public Mono<statusGame> getGameStatus(Game game) {
-        return Mono.just(game.getStatus());
-    }
-
-    @Override
-    public Mono<Hand> getPlayerHand(Game game) {
-        return Mono.just(game.getPlayerHand());
-    }
-
-    @Override
-    public Mono<Hand> getDealerHand(Game game) {
-        return Mono.just(game.getDealerHand());
+                        )
+                );
     }
 
     public Flux<Game> getAllGames(){
@@ -184,6 +185,22 @@ public class GameService implements GameServiceInterface {
                 .map(Game::getId)
                 .collectList()
                 .map(ids -> ids.stream().mapToInt(i -> i).max().orElse(0) + 1);
+    }
+
+    public Flux<PlayerRankDTO> getRanking() {
+        return playerService.getAllPlayers()
+                .sort(Comparator.comparingInt(Player::getScore).reversed())
+                .map(player -> new PlayerRankDTO(player.getName(), (int) player.getScore()));
+    }
+
+    public Mono<Void> deleteGame(int gameId) {
+        return gameRepository.findById(gameId)
+                .switchIfEmpty(Mono.error(new GameNotFoundException("Game with ID " + gameId + " not found.")))
+                .flatMap(existingGame -> gameRepository.delete(existingGame));
+    }
+
+    public Mono<Player> changePlayerName(int playerId, String newName) {
+        return playerService.changePlayerName(playerId, newName);
     }
 
 

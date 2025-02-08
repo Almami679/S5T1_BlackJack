@@ -1,9 +1,13 @@
 package S5T1BlackJack.controllers;
 
 import S5T1BlackJack.DTO.PlayerDTO;
+import S5T1BlackJack.DTO.PlayerRankDTO;
 import S5T1BlackJack.entities.enumsEntities.ActionType;
 import S5T1BlackJack.entities.mongoDb.Game;
 import S5T1BlackJack.entities.sql.Player;
+import S5T1BlackJack.exceptions.DuplicatedPlayerException;
+import S5T1BlackJack.exceptions.GameNotFoundException;
+import S5T1BlackJack.exceptions.PlayerNotFoundException;
 import S5T1BlackJack.service.gameService.GameServiceInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Comparator;
 
 @RestController
 @RequestMapping("/blackJack")
@@ -55,7 +61,7 @@ public class GameController {
 
 
 
-    @Operation(summary = "Play this game")
+    @Operation(summary = "Play this game (FUNCTIONALLY)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Play success",
                     content = @Content(mediaType = "application/json",
@@ -87,18 +93,43 @@ public class GameController {
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
 
-    ///Hacer funcion rancking
 
-
-    @Operation(summary = "Get Ranking")
+    @Operation(summary = "Get Ranking (FUNCTIONALLY)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get Success",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Player.class))),
             @ApiResponse(responseCode = "404", description = "Error")
     })
     @GetMapping("/ranking")
-    public Flux<Player> getRankng() {
-        return Flux.empty();
+    public Flux<PlayerRankDTO> getRanking() {
+        return gameService.getRanking();
+    }
+
+
+    @Operation(summary = "Delete a game by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Game deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Game not found")
+    })
+    @DeleteMapping("/game/{id}")
+    public Mono<ResponseEntity<Void>> deleteGame(@PathVariable int id) {
+        return gameService.deleteGame(id)
+                .then(Mono.just(ResponseEntity.ok().<Void>build()))
+                .onErrorResume(GameNotFoundException.class, e -> Mono.just(ResponseEntity.notFound().<Void>build()));
+    }
+
+
+    @Operation(summary = "Change player's name")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Player name updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Player.class))),
+            @ApiResponse(responseCode = "404", description = "Player not found"),
+            @ApiResponse(responseCode = "409", description = "Duplicated player name")
+    })
+    @PutMapping("/player/{id}/name")
+    public Mono<ResponseEntity<Player>> changePlayerName(@PathVariable int id, @RequestParam String newName) {
+        return gameService.changePlayerName(id, newName)
+                .map(ResponseEntity::ok);
     }
 }
 
