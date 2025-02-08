@@ -25,8 +25,8 @@ import java.util.Date;
 public class Game {
 
     @Id
-    @Schema(description = "Game ID", example = "123456789abcdef")
-    private String id;
+    @Schema(description = "Game ID", example = "1")
+    private int id;
 
     @Schema(description = "Player in the game")
     private Player player;
@@ -69,7 +69,7 @@ public class Game {
         this.bet = 0;
     }
 
-    public Game(String id, Date gameDate, statusGame status){
+    public Game(int id, Date gameDate, statusGame status){
         this.id = id;
         this.gameDate = gameDate;
         this.status = status;
@@ -118,7 +118,7 @@ public class Game {
         return bet;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 

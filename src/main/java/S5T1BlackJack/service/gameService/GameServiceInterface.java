@@ -11,11 +11,12 @@ import reactor.core.publisher.Mono;
 public interface GameServiceInterface {
 
     Mono<Game> addGame(PlayerDTO playerDTO);
-    Mono<Game> getGame(String id);
+    Mono<Game> getGame(int id);
     Mono<Game> verifyBetAmount(Game game,int betAmount);
     Mono<Game> playTurn(Game game, ActionType action);
     Mono<Game> checkGameStatus(Game game);
     Mono<Game> dealerTurn(Game game);
+    Mono<Game> makeBet(int id, int amount);
     Mono<statusGame> getGameStatus(Game game);
     Mono<Hand> getPlayerHand(Game game);
     Mono<Hand> getDealerHand(Game game);

@@ -36,29 +36,38 @@ public class GameService implements GameServiceInterface {
                     if (!playerExists) {
                         Player playerGame = new Player();
                         playerGame.setName(playerDTO.getName());
+                        playerGame.setTotalBalance(10000);
 
                         return playerService.addPlayer(playerGame)
-                                .flatMap(savedPlayer -> {
-                                    Game game = new Game(savedPlayer);
-                                    return gameRepository.save(game);
-                                });
+                                .flatMap(savedPlayer -> getNextId()
+                                        .flatMap(id -> {
+                                            Game game = new Game((Player) savedPlayer);
+                                            game.setId(id);
+                                            return gameRepository.save(game);
+                                        }));
                     } else {
                         return playerService.getPlayerByName(playerDTO)
-                                .flatMap(existingPlayer -> {
-                                    Game game = new Game(existingPlayer);
-                                    return gameRepository.save(game);
-                                });
+                                .flatMap(existingPlayer -> getNextId()
+                                        .flatMap(id -> {
+                                            Game game = new Game(existingPlayer);
+                                            game.setId(id);
+                                            return gameRepository.save(game);
+                                        }));
                     }
                 });
     }
 
 
-
-
-    public Mono<Game> getGame(String id){
+    public Mono<Game> getGame(int id){
         return gameRepository.findById(id)
                 .switchIfEmpty(Mono.error(new GameNotFoundException("Game not found with id: " + id)));
 
+    }
+
+    public Mono<Game> makeBet(int id, int amount) {
+        return getGame(id)
+                .flatMap(game -> verifyBetAmount(game, amount))
+                .flatMap(updatedGame -> gameRepository.save(updatedGame));
     }
 
     public Mono<Game> verifyBetAmount(Game game, int betAmount) {
@@ -155,6 +164,12 @@ public class GameService implements GameServiceInterface {
        return (Flux<Game>) gameRepository.findAll();
     }
 
+    public Mono<Integer> getNextId() {
+        return gameRepository.findAll()
+                .map(Game::getId)
+                .collectList()
+                .map(ids -> ids.stream().mapToInt(i -> i).max().orElse(0) + 1);
+    }
 
 
 }

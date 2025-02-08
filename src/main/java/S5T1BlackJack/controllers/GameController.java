@@ -43,7 +43,7 @@ public class GameController {
             @ApiResponse(responseCode = "400", description = "Error")
     })
     @GetMapping("/game/{id}")
-    public Mono<ResponseEntity<Game>> getOneFruit(@PathVariable String id) {
+    public Mono<ResponseEntity<Game>> getGame(@PathVariable int id) {
        return gameService.getGame(id).map(ResponseEntity::ok);
     }
 
@@ -58,7 +58,7 @@ public class GameController {
             @ApiResponse(responseCode = "404", description = "Game not found")
     })
     @PostMapping("/game/{id}/play/{action}")
-    public Mono<ResponseEntity<Game>> playTurn(@PathVariable String id,
+    public Mono<ResponseEntity<Game>> playTurn(@PathVariable int id,
                                                @Valid @PathVariable String action) {
         return gameService.getGame(id)
                 .flatMap(game -> gameService.playTurn(game, ActionType.fromString(action)))
@@ -75,10 +75,14 @@ public class GameController {
             @ApiResponse(responseCode = "404", description = "Error")
     })
     @PostMapping("/game/{id}/bet/{amount}")
-    public Mono<ResponseEntity<Game>> makeBet(@PathVariable String id, int amount) {
-        return gameService.verifyBetAmount(gameService.getGame(id).block(), amount)
-                .map(game -> ResponseEntity.status(HttpStatus.CREATED).body(game));
+    public Mono<ResponseEntity<Game>> makeBet(@PathVariable int id, @RequestParam int amount) {
+        return gameService.makeBet(id, amount)
+                .map(updatedGame -> ResponseEntity.status(HttpStatus.CREATED).body(updatedGame))
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
+
+    ///Hacer funcion rancking
+
 
     @Operation(summary = "Get Ranking")
     @ApiResponses(value = {

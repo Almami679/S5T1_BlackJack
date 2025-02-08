@@ -18,8 +18,9 @@ public class PlayerService implements PlayerServiceInteface {
 
     @Override
     public Mono<Player> addPlayer(Player player) {
-        return playerRepository.findPlayerByName(player.getName()) // Esto ya es un Mono<Player>
-                .flatMap(existingPlayer -> Mono.error(new DuplicatedPlayerException("Entity with the name '" + player.getName() + "' already exists.")))
+        return playerRepository.findPlayerByName(player.getName())
+                .flatMap(existingPlayer -> Mono.error(new DuplicatedPlayerException(
+                        "Entity with the name '" + player.getName() + "' already exists.")))
                 .switchIfEmpty(playerRepository.save(player))
                 .cast(Player.class);
     }
