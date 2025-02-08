@@ -17,6 +17,7 @@ public class Player {
     @Column("name")
     private String name;
 
+    @Getter
     @Column("total_balance")
     private int totalBalance;
 
@@ -48,4 +49,5 @@ public class Player {
         this.score = score;
         return this;
     }
+
 }

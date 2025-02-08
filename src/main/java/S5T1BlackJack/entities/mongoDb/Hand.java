@@ -7,12 +7,13 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "hands")
 @Getter
 @Setter
-@Schema(description = "Hand entity representing a player's cards and bet")
+@Schema(description = "Hand entity representing a player's cards")
 public class Hand {
 
     @Id
@@ -23,20 +24,15 @@ public class Hand {
     private String playerId;
 
     @Schema(description = "List of cards in hand")
-    private List<Card> cards;
-
-    @Schema(description = "Bet amount for this hand", example = "50.0")
-    private double bet;
+    private List<Card> cards = new ArrayList<>();
 
     public Hand() {}
 
-    public Hand(String id, String playerId, List<Card> cards, double bet) {
+    public Hand(String id, String playerId, List<Card> cards) {
         this.id = id;
         this.playerId = playerId;
-        this.cards = cards;
-        this.bet = bet;
+        this.cards = (cards != null) ? cards : new ArrayList<>();
     }
-
 
     public Mono<Integer> calculateScore() {
         return Mono.fromCallable(() ->
@@ -57,14 +53,12 @@ public class Hand {
     public Mono<Boolean> checkBlackjack() {
         return calculateScore().map(score -> cards.size() == 2 && score == 21);
     }
-    public Mono<Boolean> checkScoreHand() {
-        return calculateScore().map(score -> score > 21);
-    }
 
     public Mono<Void> addCard(Card card) {
+        if (this.cards == null) {
+            this.cards = new ArrayList<>();
+        }
         this.cards.add(card);
         return Mono.empty();
     }
-
-
 }

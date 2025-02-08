@@ -36,7 +36,7 @@ public class GameController {
                 .map(game -> ResponseEntity.status(HttpStatus.CREATED).body(game));
     }
 
-    @Operation(summary = "Create a new Blackjack game")
+    @Operation(summary = "Create a new Blackjack game (FUNCTIONALLY)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created Successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Game.class))),
@@ -59,16 +59,16 @@ public class GameController {
     })
     @PostMapping("/game/{id}/play/{action}")
     public Mono<ResponseEntity<Game>> playTurn(@PathVariable int id,
-                                               @Valid @PathVariable String action) {
+                                               @Valid @PathVariable ActionType action) {
         return gameService.getGame(id)
-                .flatMap(game -> gameService.playTurn(game, ActionType.fromString(action)))
+                .flatMap(game -> gameService.playTurn(game, action))
                 .map(ResponseEntity::ok)
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
 
 
 
-    @Operation(summary = "Make a new bet")
+    @Operation(summary = "Make a new bet (FUNCTIONALLY)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Bet created successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Game.class))),

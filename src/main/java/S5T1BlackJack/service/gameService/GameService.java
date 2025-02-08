@@ -6,6 +6,7 @@ import S5T1BlackJack.entities.enumsEntities.statusGame;
 import S5T1BlackJack.entities.mongoDb.Game;
 import S5T1BlackJack.entities.mongoDb.Hand;
 import S5T1BlackJack.entities.sql.Player;
+import S5T1BlackJack.exceptions.GameHasFInishException;
 import S5T1BlackJack.exceptions.GameHasNotBetException;
 import S5T1BlackJack.exceptions.GameNotFoundException;
 import S5T1BlackJack.repository.GameRepository;
@@ -29,6 +30,8 @@ public class GameService implements GameServiceInterface {
         this.playerService = playerService;
         this.gameRepository = gameRepository;
     }
+
+
 
     public Mono<Game> addGame(PlayerDTO playerDTO) {
         return playerService.checkPlayer(playerDTO)
@@ -67,7 +70,10 @@ public class GameService implements GameServiceInterface {
     public Mono<Game> makeBet(int id, int amount) {
         return getGame(id)
                 .flatMap(game -> verifyBetAmount(game, amount))
-                .flatMap(updatedGame -> gameRepository.save(updatedGame));
+                .flatMap(game -> {
+                    game.setBet(amount);
+                    return gameRepository.save(game);
+                });
     }
 
     public Mono<Game> verifyBetAmount(Game game, int betAmount) {
@@ -89,16 +95,21 @@ public class GameService implements GameServiceInterface {
         }
 
         if (game.getStatus() != statusGame.IN_GAME) {
-            return Mono.just(game);
+            return Mono.error(new GameHasFInishException("This game status is: " + game.getStatus()));
         }
+
+        Mono<Game> updatedGameMono;
 
         if (actionType == ActionType.STAND) {
-            return dealerTurn(game);
+            updatedGameMono = dealerTurn(game);
+        } else {
+            updatedGameMono = game.nextCard()
+                    .flatMap(game.getPlayerHand()::addCard)
+                    .then(checkGameStatus(game))
+                    .thenReturn(game);
         }
 
-        return game.nextCard()
-                .flatMap(game.getPlayerHand()::addCard)
-                .then(checkGameStatus(game));
+        return updatedGameMono.flatMap(gameRepository::save);
     }
 
     @Override
@@ -108,9 +119,11 @@ public class GameService implements GameServiceInterface {
                     if (score < 17) {
                         return game.nextCard()
                                 .flatMap(game.getDealerHand()::addCard)
+                                .then(checkGameStatus(game))
+                                .flatMap(gameRepository::save)
                                 .then(dealerTurn(game));
                     }
-                    return checkGameStatus(game);
+                    return checkGameStatus(game).flatMap(gameRepository::save);
                 });
     }
 
@@ -122,7 +135,10 @@ public class GameService implements GameServiceInterface {
                                 .flatMap(playerHasBlackjack -> {
                                     statusGame output;
 
-                                    if (playerHasBlackjack) {
+
+                                    if (game.getDealerHand().getCards().isEmpty()) {
+                                        output = statusGame.IN_GAME;
+                                    } else if (playerHasBlackjack && dealerScore != 21) {
                                         output = statusGame.PLAYER_WINS;
                                     } else if (playerScore > 21) {
                                         output = statusGame.HOUSE_WINS;
@@ -139,7 +155,7 @@ public class GameService implements GameServiceInterface {
                                     game.setStatus(output);
                                     game.updateBalance(output);
 
-                                    return Mono.just(game);
+                                    return gameRepository.save(game);
                                 })
                         )
                 );
