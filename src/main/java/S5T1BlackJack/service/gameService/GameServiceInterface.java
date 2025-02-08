@@ -15,9 +15,6 @@ public interface GameServiceInterface {
     Mono<Game> addGame(PlayerDTO playerDTO);
     Mono<Game> getGame(int id);
     Mono<Game> verifyBetAmount(Game game,int betAmount);
-    Mono<Game> playTurn(Game game, ActionType action);
-    Mono<Game> checkGameStatus(Game game);
-    Mono<Game> dealerTurn(Game game);
     Mono<Game> makeBet(int id, int amount);
     Mono<Player> changePlayerName(int playerId, String newName);
     Flux<PlayerRankDTO> getRanking();

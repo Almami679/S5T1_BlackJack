@@ -5,10 +5,9 @@ import S5T1BlackJack.DTO.PlayerRankDTO;
 import S5T1BlackJack.entities.enumsEntities.ActionType;
 import S5T1BlackJack.entities.mongoDb.Game;
 import S5T1BlackJack.entities.sql.Player;
-import S5T1BlackJack.exceptions.DuplicatedPlayerException;
 import S5T1BlackJack.exceptions.GameNotFoundException;
-import S5T1BlackJack.exceptions.PlayerNotFoundException;
 import S5T1BlackJack.service.gameService.GameServiceInterface;
+import S5T1BlackJack.service.gameService.LogicGameServiceInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Comparator;
 
 @RestController
 @RequestMapping("/blackJack")
@@ -30,10 +28,13 @@ public class GameController {
 
     @Autowired
     private final GameServiceInterface gameService;
+    @Autowired
+    private final LogicGameServiceInterface logicGame;
 
 
-    public GameController(GameServiceInterface gameService) {
+    public GameController(GameServiceInterface gameService, LogicGameServiceInterface logicGame) {
         this.gameService = gameService;
+        this.logicGame = logicGame;
     }
 
     @Operation(summary = "Create a new Blackjack game (FUNCTIONALLY)")
@@ -73,7 +74,7 @@ public class GameController {
     public Mono<ResponseEntity<Game>> playTurn(@PathVariable int id,
                                                @Valid @PathVariable ActionType action) {
         return gameService.getGame(id)
-                .flatMap(game -> gameService.playTurn(game, action))
+                .flatMap(game -> logicGame.playTurn(game, action))
                 .map(ResponseEntity::ok)
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
