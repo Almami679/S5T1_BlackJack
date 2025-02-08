@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 @Service
 public class GameService implements GameServiceInterface {
 
@@ -148,16 +150,14 @@ public class GameService implements GameServiceInterface {
 
                                     game.setStatus(output);
                                     game.updateBalance(output);
-
-                                    if (output != statusGame.IN_GAME) {
-                                        return gameRepository.save(game)
-                                                .then(Mono.error(new GameHasFInishException("Game over: " + output)));
-                                    }
-
-                                    return gameRepository.save(game);
+                                    return Mono.justOrEmpty(game.getPlayer())
+                                            .flatMap(player -> playerService.updatePlayer(player.block()))
+                                            .flatMap(updatedPlayer -> {
+                                                game.setPlayer(updatedPlayer);
+                                                return gameRepository.save(game);
+                                            });
                                 })
-                        )
-                );
+                ));
     }
 
     @Override

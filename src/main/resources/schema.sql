@@ -10,5 +10,7 @@ CREATE TABLE IF NOT EXISTS `blackjackdb`.`players` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(50) NOT NULL,
     `total_balance` INT DEFAULT 0,
-    `score` DOUBLE DEFAULT 0
+    `score` DOUBLE DEFAULT 0,
+    `total_win_games` INT DEFAULT 0,
+    `total_lost_games` INT DEFAULT 0
 );

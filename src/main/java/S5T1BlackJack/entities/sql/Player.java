@@ -21,6 +21,12 @@ public class Player {
     @Column("total_balance")
     private int totalBalance;
 
+    @Column("total_win_games")
+    private int winGames;
+
+    @Column("total_lost_games")
+    private int lostGames;
+
     @Column("score")
     private double score;
 
@@ -35,6 +41,15 @@ public class Player {
         this.totalBalance = 10000;
     }
 
+    public Player (int id, String name, int totalBalance, double score, int totalWinGames, int totalLostGames ) {
+        this.id = id;
+        this.name = name;
+        this.totalBalance = totalBalance;
+        this.score = score;
+        this.winGames = totalWinGames;
+        this.lostGames = totalLostGames;
+    }
+
     public Player setName(String name) {
         this.name = name;
         return this;
@@ -45,9 +60,13 @@ public class Player {
         return score;
     }
 
-    public Player setScore(double score) {
-        this.score = score;
-        return this;
+    public void setScore() {
+        int totalGames = winGames + lostGames;
+        if (totalGames == 0) {
+            score = 0;
+        } else {
+            score = Math.round(((double) winGames / totalGames) * 10000);
+        }
     }
 
 }

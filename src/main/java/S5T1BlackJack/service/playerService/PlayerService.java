@@ -42,6 +42,8 @@ public class PlayerService implements PlayerServiceInteface {
                 .switchIfEmpty(Mono.error(new PlayerNotFoundException("Player not found with id " + updatedPlayer.getId())))
                 .flatMap(dbPlayer -> {
                     dbPlayer.setName(updatedPlayer.getName());
+                    dbPlayer.setTotalBalance(updatedPlayer.getTotalBalance());
+                    dbPlayer.setScore(updatedPlayer.getScore());
                     return playerRepository.save(dbPlayer);
                 });
     }

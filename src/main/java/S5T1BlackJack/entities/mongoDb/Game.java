@@ -65,11 +65,13 @@ public class Game {
         this.bet = 0;
     }
 
-    public Game(int id, Date gameDate, statusGame status){
+    public Game(int id, Date gameDate, statusGame status, Hand playerHand, Hand dealerHand, Player player){
         this.id = id;
         this.gameDate = gameDate;
         this.status = status;
-        this.player = null;
+        this.player = player;
+        this.dealerHand = dealerHand;
+        this.playerHand = playerHand;
 
     }
 
@@ -77,10 +79,14 @@ public class Game {
         int playerBalance = player.getTotalBalance();
         switch (finalStatus) {
             case PLAYER_WINS:
-                player.setTotalBalance(playerBalance + (bet * 2));
+                player.setTotalBalance(playerBalance + (bet));
+                player.setWinGames(player.getWinGames() + 1);
+                player.setScore();
                 break;
             case HOUSE_WINS:
                 player.setTotalBalance(playerBalance - bet);
+                player.setLostGames(player.getLostGames() + 1);
+                player.setScore();
                 break;
             case THE_GAME_WAS_DRAWN:
                 break;
