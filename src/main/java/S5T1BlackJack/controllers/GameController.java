@@ -106,7 +106,7 @@ public class GameController {
     }
 
 
-    @Operation(summary = "Delete a game by ID")
+    @Operation(summary = "Delete a game by ID (FUNCTIONALLY)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Game deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Game not found")
@@ -119,7 +119,7 @@ public class GameController {
     }
 
 
-    @Operation(summary = "Change player's name")
+    @Operation(summary = "Change player's name (FUNCTIONALLY)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Player name updated successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Player.class))),
