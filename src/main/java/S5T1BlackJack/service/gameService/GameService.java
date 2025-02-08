@@ -118,9 +118,7 @@ public class GameService implements GameServiceInterface {
                 .flatMap(score -> {
                     if (score < 17) {
                         return game.nextCard()
-                                .flatMap(game.getDealerHand()::addCard)
-                                .then(checkGameStatus(game))
-                                .flatMap(gameRepository::save)
+                                .flatMap(card -> game.getDealerHand().addCard(card))
                                 .then(dealerTurn(game));
                     }
                     return checkGameStatus(game).flatMap(gameRepository::save);
@@ -140,6 +138,7 @@ public class GameService implements GameServiceInterface {
                                         output = statusGame.IN_GAME;
                                     } else if (playerHasBlackjack && dealerScore != 21) {
                                         output = statusGame.PLAYER_WINS;
+
                                     } else if (playerScore > 21) {
                                         output = statusGame.HOUSE_WINS;
                                     } else if (dealerScore > 21) {

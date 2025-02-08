@@ -36,13 +36,13 @@ public class Game {
 
     @JsonIgnore
     @Schema(description = "Deck of cards used in the game", hidden = true)
-    private Deck deck;
+    private final Deck deck = new Deck();
 
     @Schema(description = "Player's hand of cards")
-    private Hand playerHand;
+    private final Hand playerHand = new Hand();
 
     @Schema(description = "Dealer's hand of cards")
-    private Hand dealerHand;
+    private final Hand dealerHand = new Hand();
 
     @Schema(description = "Current game status")
     private statusGame status;
@@ -51,10 +51,9 @@ public class Game {
     private int bet;
 
     public Game(){
-        this.deck = new Deck();
+
         this.gameDate = new Date(System.currentTimeMillis());
-        this.playerHand = new Hand();
-        this.dealerHand = new Hand();
+
         this.status = statusGame.IN_GAME;
         this.bet = 0;
     };
@@ -62,9 +61,6 @@ public class Game {
     public Game(Player player) {
         this.player = player;
         this.gameDate = new Date(System.currentTimeMillis());
-        this.deck = new Deck();
-        this.playerHand = new Hand();
-        this.dealerHand = new Hand();
         this.status = statusGame.IN_GAME;
         this.bet = 0;
     }
@@ -74,16 +70,14 @@ public class Game {
         this.gameDate = gameDate;
         this.status = status;
         this.player = null;
-        this.playerHand = null;
-        this.dealerHand = null;
-        this.deck = null;
+
     }
 
     public void updateBalance(statusGame finalStatus) {
         int playerBalance = player.getTotalBalance();
         switch (finalStatus) {
             case PLAYER_WINS:
-                player.setTotalBalance(playerBalance + bet);
+                player.setTotalBalance(playerBalance + (bet * 2));
                 break;
             case HOUSE_WINS:
                 player.setTotalBalance(playerBalance - bet);

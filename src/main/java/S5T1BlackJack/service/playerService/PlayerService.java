@@ -1,6 +1,7 @@
 package S5T1BlackJack.service.playerService;
 
 import S5T1BlackJack.DTO.PlayerDTO;
+import S5T1BlackJack.entities.mongoDb.Game;
 import S5T1BlackJack.entities.sql.Player;
 import S5T1BlackJack.exceptions.DuplicatedPlayerException;
 import S5T1BlackJack.exceptions.PlayerNotFoundException;
@@ -24,8 +25,6 @@ public class PlayerService implements PlayerServiceInteface {
                 .switchIfEmpty(playerRepository.save(player))
                 .cast(Player.class);
     }
-
-
 
 
     @Override

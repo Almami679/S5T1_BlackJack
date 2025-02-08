@@ -2,6 +2,7 @@ package S5T1BlackJack.entities;
 
 import S5T1BlackJack.entities.enumsEntities.CardSuit;
 import S5T1BlackJack.entities.enumsEntities.CardValue;
+import S5T1BlackJack.exceptions.DeckIsEmptyException;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -22,7 +23,12 @@ public class Deck {
     }
 
     public Mono<Card> nextCard() {
-        return Mono.justOrEmpty(cards.isEmpty() ? null : cards.get(0));
+        return Mono.fromCallable(() -> {
+            if (cards.isEmpty()) {
+                throw new DeckIsEmptyException("No more cards in the deck");
+            }
+            return cards.remove(0);
+        });
     }
 
 }

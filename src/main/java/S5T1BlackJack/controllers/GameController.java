@@ -30,13 +30,19 @@ public class GameController {
         this.gameService = gameService;
     }
 
+    @Operation(summary = "Create a new Blackjack game (FUNCTIONALLY)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created Successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Game.class))),
+            @ApiResponse(responseCode = "400", description = "Error")
+    })
     @PostMapping("/game/new")
     public Mono<ResponseEntity<Game>> newGame(@Valid @RequestBody PlayerDTO playerDTO) {
         return gameService.addGame(playerDTO)
                 .map(game -> ResponseEntity.status(HttpStatus.CREATED).body(game));
     }
 
-    @Operation(summary = "Create a new Blackjack game (FUNCTIONALLY)")
+    @Operation(summary = "Find Blackjack game (FUNCTIONALLY)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created Successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Game.class))),
