@@ -13,9 +13,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PlayerDTO {
 
-    @NotNull
-    @NotBlank(message = "name cannot be null")
-    @Size(min = 3, max = 50, message = "the name must be between 3 and 50 characters")
+    @NotNull(message = "name cannot be null")
+    @NotBlank(message = "name cannot be blank")
+    @Size(min = 3, max = 30, message = "the name must be between 3 and 50 characters")
     private String name;
 
     public String getName(){

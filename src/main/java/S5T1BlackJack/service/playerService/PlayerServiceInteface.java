@@ -13,4 +13,5 @@ public interface PlayerServiceInteface {
     Flux<Player> getAllPlayers();
     Mono<Player> createNewPlayer(PlayerDTO playerDTO);
     Mono<Player> changePlayerName(int playerId, String newName);
+    Mono<Player> addAmount(int playerId, int amount);
 }

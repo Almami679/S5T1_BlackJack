@@ -106,6 +106,10 @@ public class GameService implements GameServiceInterface {
         return playerService.changePlayerName(playerId, newName);
     }
 
+    public Mono<Player> addAmountInPlayer(int playerId, int amount) {
+        return playerService.addAmount(playerId, amount);
+    }
+
 
 }
 

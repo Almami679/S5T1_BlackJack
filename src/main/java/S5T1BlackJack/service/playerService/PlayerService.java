@@ -63,4 +63,16 @@ public class PlayerService implements PlayerServiceInteface {
                                 .thenReturn(existingPlayer)
                 );
     }
+
+    public Mono<Player> addAmount(int playerId, int amount) {
+        return playerRepository.findById(playerId)
+                .switchIfEmpty(Mono.error(new PlayerNotFoundException("Player with ID " + playerId + " not found.")))
+                .flatMap(existingPlayer -> {
+                    existingPlayer.setTotalBalance(existingPlayer.getTotalBalance() + amount);
+                    return playerRepository.save(existingPlayer);
+                });
+    }
+
+
 }
+

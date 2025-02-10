@@ -19,4 +19,5 @@ public interface GameServiceInterface {
     Mono<Player> changePlayerName(int playerId, String newName);
     Flux<PlayerRankDTO> getRanking();
     Mono<Void> deleteGame(int gameId);
+    Mono<Player> addAmountInPlayer(int playerId, int amount);
 }

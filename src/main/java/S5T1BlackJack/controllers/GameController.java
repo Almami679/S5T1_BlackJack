@@ -1,5 +1,6 @@
 package S5T1BlackJack.controllers;
 
+import S5T1BlackJack.DTO.AmountDTO;
 import S5T1BlackJack.DTO.PlayerDTO;
 import S5T1BlackJack.DTO.PlayerRankDTO;
 import S5T1BlackJack.entities.enumsEntities.ActionType;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -102,8 +104,12 @@ public class GameController {
             @ApiResponse(responseCode = "404", description = "Error")
     })
     @GetMapping("/ranking")
-    public Flux<PlayerRankDTO> getRanking() {
-        return gameService.getRanking();
+    public Mono<ResponseEntity<Flux<PlayerRankDTO>>> getRanking() {
+        return Mono.just(
+                ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(gameService.getRanking())
+        );
     }
 
 
@@ -130,6 +136,20 @@ public class GameController {
     @PutMapping("/player/{id}/name")
     public Mono<ResponseEntity<Player>> changePlayerName(@PathVariable int id, @RequestParam String newName) {
         return gameService.changePlayerName(id, newName)
+                .map(ResponseEntity::ok);
+    }
+
+    @Operation(summary = "Add amount in player Wallet (FUNCTIONALLY)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "amount updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Player.class))),
+            @ApiResponse(responseCode = "404", description = "Player not found"),
+    })
+    @PutMapping("/{id}/amount")
+    public Mono<ResponseEntity<Player>> addAmountToPlayer(
+            @PathVariable int id,
+            @RequestBody @Valid AmountDTO amountDTO) {
+        return gameService.addAmountInPlayer(id, amountDTO.getAmount())
                 .map(ResponseEntity::ok);
     }
 }
