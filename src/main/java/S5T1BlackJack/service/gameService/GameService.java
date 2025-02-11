@@ -79,10 +79,6 @@ public class GameService implements GameServiceInterface {
     }
 
 
-    public Flux<Game> getAllGames(){
-       return (Flux<Game>) gameRepository.findAll();
-    }
-
     public Mono<Integer> getNextId() {
         return gameRepository.findAll()
                 .map(Game::getId)

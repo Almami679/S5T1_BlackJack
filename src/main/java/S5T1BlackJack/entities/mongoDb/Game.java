@@ -37,7 +37,7 @@ public class Game {
 
     @JsonIgnore
     @Schema(description = "Deck of cards used in the game", hidden = true)
-    private final Deck deck = new Deck();
+    private Deck deck = new Deck();
 
     @Getter
     @Schema(description = "Player's hand of cards")

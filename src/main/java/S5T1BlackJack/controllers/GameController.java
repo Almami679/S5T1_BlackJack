@@ -28,12 +28,12 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/blackJack")
 public class GameController {
 
-    @Autowired
+
     private final GameServiceInterface gameService;
-    @Autowired
+
     private final LogicGameServiceInterface logicGame;
 
-
+    @Autowired
     public GameController(GameServiceInterface gameService, LogicGameServiceInterface logicGame) {
         this.gameService = gameService;
         this.logicGame = logicGame;
@@ -90,7 +90,7 @@ public class GameController {
             @ApiResponse(responseCode = "404", description = "Error")
     })
     @PostMapping("/game/{id}/bet/{amount}")
-    public Mono<ResponseEntity<Game>> makeBet(@PathVariable int id, @RequestParam int amount) {
+    public Mono<ResponseEntity<Game>> makeBet(@PathVariable int id, @PathVariable int amount) {
         return gameService.makeBet(id, amount)
                 .map(updatedGame -> ResponseEntity.status(HttpStatus.CREATED).body(updatedGame))
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
