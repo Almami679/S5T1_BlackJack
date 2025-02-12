@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  blackjack-api:
+    build: .
+    container_name: blackjack-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - mongo
+    environment:
+      SPRING_APPLICATION_NAME: S05T01N01
+      SPRING_R2DBC_URL: r2dbc:pool:mysql://mysql:3306/blackjackdb
+      SPRING_R2DBC_USERNAME: root
+      SPRING_R2DBC_PASSWORD: Chefwork135731
+      SPRING_R2DBC_DRIVER: mysql
+      SPRING_MAIN_WEB_APPLICATION_TYPE: reactive
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/blackjack
+      SPRINGDOC_API_DOCS_PATH: /v3/api-docs
+      SPRINGDOC_SWAGGER_UI_PATH: /swagger-ui/index.html
+      SPRINGDOC_OVERRIDE_WITH_GENERIC_RESPONSE: "false"
+      SPRING_DEVTOOLS_RESTART_ENABLED: "false"
+    networks:
+      - blackjack-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Chefwork135731
+      MYSQL_DATABASE: blackjackdb
+    ports:
+      - "3307:3306"
+    networks:
+      - blackjack-network
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  mongo:
+    image: mongo:5.0
+    container_name: mongo-db
+    restart: always
+    ports:
+      - "27018:27017"
+    networks:
+      - blackjack-network
+    volumes:
+      - mongo_data:/data/db
+
+networks:
+  blackjack-network:
+
+volumes:
+  mysql_data:
+  mongo_data:

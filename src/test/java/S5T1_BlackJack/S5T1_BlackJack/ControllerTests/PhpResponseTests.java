@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = S05T01N01Application.class)
 @SpringBootTest
+@ActiveProfiles("games-test")
 @AutoConfigureWebTestClient
 
 class PhpResponseTests {
