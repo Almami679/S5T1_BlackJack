@@ -1,22 +1,16 @@
-package S5T1BlackJack.entities.mongoDb;
-import S5T1BlackJack.entities.Card;
-import io.swagger.v3.oas.annotations.media.Schema;
+package S5T1BlackJack.entities.localEntities;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.Document;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "hands")
 @Getter
 @Setter
-@Schema(description = "Hand entity representing a player's cards")
 public class Hand {
 
 
-    @Schema(description = "List of cards in hand")
     private List<Card> cards = new ArrayList<>();
 
     public Hand() {}

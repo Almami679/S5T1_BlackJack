@@ -7,7 +7,7 @@ import S5T1BlackJack.controllers.GameController;
 import S5T1BlackJack.entities.enumsEntities.ActionType;
 import S5T1BlackJack.entities.enumsEntities.statusGame;
 import S5T1BlackJack.entities.mongoDb.Game;
-import S5T1BlackJack.entities.mongoDb.Hand;
+import S5T1BlackJack.entities.localEntities.Hand;
 import S5T1BlackJack.entities.sql.Player;
 import S5T1BlackJack.repository.GameRepository;
 import S5T1BlackJack.service.gameService.GameServiceInterface;

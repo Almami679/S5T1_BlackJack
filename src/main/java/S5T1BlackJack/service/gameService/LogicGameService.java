@@ -75,31 +75,24 @@ public class LogicGameService implements LogicGameServiceInterface{
                                 .flatMap(playerHasBlackjack -> {
                                     statusGame output;
 
-                                    // 1. Si el jugador se pasa de 21, pierde inmediatamente
                                     if (playerScore > 21) {
                                         output = statusGame.HOUSE_WINS;
                                     }
-                                    // 2. Si el dealer aún no ha jugado, el juego sigue
                                     else if (game.getDealerHand().getCards().isEmpty()) {
                                         output = statusGame.IN_GAME;
                                     }
-                                    // 3. Si el jugador tiene blackjack pero el dealer no, gana
                                     else if (playerHasBlackjack && dealerScore != 21) {
                                         output = statusGame.PLAYER_WINS;
                                     }
-                                    // 4. Si el dealer se pasa de 21, el jugador gana
                                     else if (dealerScore > 21) {
                                         output = statusGame.PLAYER_WINS;
                                     }
-                                    // 5. Si el jugador y el dealer tienen el mismo puntaje, empate
                                     else if (playerScore.equals(dealerScore)) {
                                         output = statusGame.THE_GAME_WAS_DRAWN;
                                     }
-                                    // 6. Si el jugador tiene más puntos que el dealer, gana
                                     else if (playerScore > dealerScore) {
                                         output = statusGame.PLAYER_WINS;
                                     }
-                                    // 7. Si el dealer tiene más puntos que el jugador, gana el dealer
                                     else {
                                         output = statusGame.HOUSE_WINS;
                                     }

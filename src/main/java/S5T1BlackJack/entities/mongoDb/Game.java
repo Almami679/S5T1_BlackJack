@@ -1,8 +1,9 @@
 package S5T1BlackJack.entities.mongoDb;
 
-import S5T1BlackJack.entities.Deck;
+import S5T1BlackJack.entities.localEntities.Deck;
 import S5T1BlackJack.entities.enumsEntities.statusGame;
-import S5T1BlackJack.entities.Card;
+import S5T1BlackJack.entities.localEntities.Card;
+import S5T1BlackJack.entities.localEntities.Hand;
 import S5T1BlackJack.entities.sql.Player;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
