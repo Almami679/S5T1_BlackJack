@@ -1,4 +1,4 @@
-package S5T1BlackJack.service.gameService;
+package S5T1BlackJack.service.gameService.logicGameImpl;
 
 import S5T1BlackJack.entities.enumsEntities.ActionType;
 import S5T1BlackJack.entities.mongoDb.Game;

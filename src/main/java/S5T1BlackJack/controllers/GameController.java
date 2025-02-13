@@ -7,8 +7,9 @@ import S5T1BlackJack.entities.enumsEntities.ActionType;
 import S5T1BlackJack.entities.mongoDb.Game;
 import S5T1BlackJack.entities.sql.Player;
 import S5T1BlackJack.exceptions.GameNotFoundException;
+import S5T1BlackJack.exceptions.InvalidBetAmountException;
 import S5T1BlackJack.service.gameService.GameServiceInterface;
-import S5T1BlackJack.service.gameService.LogicGameServiceInterface;
+import S5T1BlackJack.service.gameService.logicGameImpl.LogicGameServiceInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -82,18 +83,18 @@ public class GameController {
     }
 
 
-
     @Operation(summary = "Make a new bet (FUNCTIONALLY)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Bet created successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Game.class))),
             @ApiResponse(responseCode = "404", description = "Error")
     })
-    @PostMapping("/game/{id}/bet/{amount}")
-    public Mono<ResponseEntity<Game>> makeBet(@PathVariable int id, @PathVariable int amount) {
-        return gameService.makeBet(id, amount)
+    @PostMapping("/game/{id}/bet/")
+    public Mono<ResponseEntity<Game>> makeBet(@PathVariable int id, @Valid @RequestBody AmountDTO amount) {
+        return gameService.makeBet(id, amount.getAmount())
                 .map(updatedGame -> ResponseEntity.status(HttpStatus.CREATED).body(updatedGame))
-                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build())).
+                onErrorResume(InvalidBetAmountException.class, e -> Mono.just(ResponseEntity.badRequest().body(null)));
     }
 
 

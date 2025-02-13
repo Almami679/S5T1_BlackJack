@@ -1,9 +1,8 @@
-package S5T1BlackJack.service.gameService;
+package S5T1BlackJack.service.gameService.logicGameImpl;
 
 import S5T1BlackJack.entities.enumsEntities.ActionType;
 import S5T1BlackJack.entities.enumsEntities.statusGame;
 import S5T1BlackJack.entities.mongoDb.Game;
-import S5T1BlackJack.entities.sql.Player;
 import S5T1BlackJack.exceptions.GameHasFInishException;
 import S5T1BlackJack.exceptions.GameHasNotBetException;
 import S5T1BlackJack.repository.GameRepository;
@@ -19,6 +18,8 @@ public class LogicGameService implements LogicGameServiceInterface{
     private PlayerService playerService;
     @Autowired
     private GameRepository gameRepository;
+    @Autowired
+    private GameStatusEvaluatorService statusEvaluator;
 
     @Override
     public Mono<Game> playTurn(Game game, ActionType actionType) {
@@ -73,42 +74,14 @@ public class LogicGameService implements LogicGameServiceInterface{
                 .flatMap(playerScore -> game.getDealerScore()
                         .flatMap(dealerScore -> game.getPlayerHand().checkBlackjack()
                                 .flatMap(playerHasBlackjack -> {
-                                    statusGame output;
 
-                                    if (playerScore > 21) {
-                                        output = statusGame.HOUSE_WINS;
-                                    }
-                                    else if (game.getDealerHand().getCards().isEmpty()) {
-                                        output = statusGame.IN_GAME;
-                                    }
-                                    else if (playerHasBlackjack && dealerScore != 21) {
-                                        output = statusGame.PLAYER_WINS;
-                                    }
-                                    else if (dealerScore > 21) {
-                                        output = statusGame.PLAYER_WINS;
-                                    }
-                                    else if (playerScore.equals(dealerScore)) {
-                                        output = statusGame.THE_GAME_WAS_DRAWN;
-                                    }
-                                    else if (playerScore > dealerScore) {
-                                        output = statusGame.PLAYER_WINS;
-                                    }
-                                    else {
-                                        output = statusGame.HOUSE_WINS;
-                                    }
+                                    game.setStatus(statusEvaluator.getFinalStatusGame(playerScore, dealerScore, playerHasBlackjack));
 
-                                    game.setStatus(output);
-
-
-                                    if (output != statusGame.IN_GAME) {
-                                        Player updatedPlayer = game.updateBalance(output);
-                                        return playerService.updatePlayer(updatedPlayer)
-                                                .then(gameRepository.save(game));
-                                    } else {
-                                        return Mono.just(game);
-                                    }
+                                    return statusEvaluator.getFinalGameForStatus(game, game.getStatus());
                                 })
                         )
                 );
     }
+
+
 }

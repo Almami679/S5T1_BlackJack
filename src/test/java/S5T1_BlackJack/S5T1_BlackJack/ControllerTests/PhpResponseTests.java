@@ -11,7 +11,7 @@ import S5T1BlackJack.entities.localEntities.Hand;
 import S5T1BlackJack.entities.sql.Player;
 import S5T1BlackJack.repository.GameRepository;
 import S5T1BlackJack.service.gameService.GameServiceInterface;
-import S5T1BlackJack.service.gameService.LogicGameServiceInterface;
+import S5T1BlackJack.service.gameService.logicGameImpl.LogicGameServiceInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

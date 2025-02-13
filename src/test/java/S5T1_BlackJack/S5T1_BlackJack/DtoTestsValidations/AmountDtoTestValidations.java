@@ -1,8 +1,6 @@
 package S5T1_BlackJack.S5T1_BlackJack.DtoTestsValidations;
 
 import S5T1BlackJack.DTO.AmountDTO;
-import S5T1BlackJack.DTO.PlayerDTO;
-import S5T1BlackJack.entities.sql.Player;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

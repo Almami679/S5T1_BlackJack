@@ -71,5 +71,11 @@ public class GlobalExceptionHandler {
         log.error("Unexpected error: {}", e.getMessage());
         return new ResponseEntity<>("An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(InvalidBetAmountException.class)
+    public ResponseEntity<String> InvalidBetAmountException(InvalidBetAmountException e) {
+        log.error("Invalid bet, invalid bet, value out of range : {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
 
